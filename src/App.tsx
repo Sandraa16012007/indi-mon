@@ -67,39 +67,67 @@ export default function App() {
       )}
 
       {screen === 'LANDING' ? (
-        <div className="w-full h-full flex items-center justify-center text-white relative bg-[#020617] overflow-hidden">
-          {/* Video Background Placeholder or Parallax Image */}
-          <div className="absolute inset-0 bg-[url('/assets/map.png')] bg-cover bg-center opacity-20 scale-110 animate-pulse-slow"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80"></div>
-
-          <div className="z-10 flex flex-col items-center">
-            {/* Logo Build */}
-            <div className="mb-8 relative group">
-              <div className="absolute inset-0 bg-indi-gold/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
-              <div className="w-48 h-48 rounded-full bg-gradient-to-b from-orange-500 to-green-600 p-1.5 shadow-[0_0_60px_rgba(245,158,11,0.5)] relative animate-spin-slow">
-                <div className="w-full h-full bg-[#0f172a] rounded-full flex items-center justify-center border-[6px] border-indi-gold">
-                  <span className="text-6xl filter drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]">🛕</span>
-                </div>
-                {/* Pokeball line */}
-                <div className="absolute top-1/2 left-0 w-full h-1.5 bg-indi-dark/80"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 rounded-full border-[3px] border-white backdrop-blur-sm"></div>
-              </div>
-            </div>
-
-            <h1 className="font-serif text-8xl text-indi-gold mb-4 tracking-normal drop-shadow-[0_4px_0_rgba(0,0,0,1)] text-shadow-lg">Indi-Mon</h1>
-            <p className="font-pixel text-2xl mb-12 text-indi-parchment/90 tracking-[0.5em] uppercase border-b border-indi-gold/30 pb-4">Gotta Map 'Em All!</p>
-
-            <button
-              onClick={() => setScreen('PROFILE')}
-              className="group relative px-12 py-4 bg-transparent border-2 border-indi-gold text-indi-gold font-bold text-xl rounded-sm uppercase tracking-widest hover:bg-indi-gold hover:text-black transition-all duration-300"
-            >
-              <span className="font-pixel relative z-10">Start Journey</span>
-              <div className="absolute inset-0 bg-indi-gold transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-            </button>
+        <div
+          className="w-full h-full flex items-center justify-center text-white relative overflow-hidden cursor-pointer group"
+          style={{
+            background: `linear-gradient(rgba(45, 27, 21, 0.4), rgba(45, 27, 21, 0.4)), url("/assets/map.png")`,
+            backgroundColor: '#2D1B15',
+            backgroundSize: 'cover',
+            backgroundBlendMode: 'multiply',
+          }}
+          onClick={() => setScreen('PROFILE')}
+        >
+          {/* Subtle Stone Block Texture Overlay (Faked with CSS lines) */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none">
+            <div className="h-1/3 border-b border-black"></div>
+            <div className="h-1/3 border-b border-black"></div>
+            <div className="absolute left-1/4 top-0 bottom-1/3 border-l border-black"></div>
+            <div className="absolute left-3/4 top-1/3 bottom-1/3 border-l border-black"></div>
+            <div className="absolute left-1/2 top-2/3 bottom-0 border-l border-black"></div>
           </div>
 
-          <div className="absolute bottom-8 right-8 text-xs text-white/30 font-pixel uppercase tracking-widest text-right">
-            System Ready<br />v0.2.0 Landscape
+          <div className="z-10 flex flex-col items-center max-w-2xl px-12">
+            {/* Corner Brackets */}
+            <div className="absolute top-12 left-12 w-12 h-12 border-t border-l border-white/40"></div>
+            <div className="absolute top-12 right-12 w-12 h-12 border-t border-r border-white/40"></div>
+            <div className="absolute bottom-12 left-12 w-12 h-12 border-b border-l border-white/40"></div>
+            <div className="absolute bottom-12 right-12 w-12 h-12 border-b border-r border-white/40"></div>
+
+            {/* Logo */}
+            <div className="mb-6 w-48 h-48 drop-shadow-2xl">
+              <img src="/assets/logo.png" alt="Indi-Mon Logo" className="w-full h-full object-contain" />
+            </div>
+
+            {/* Title */}
+            <h1 className="font-serif text-[100px] text-indi-gold leading-none tracking-tight drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] mb-2">
+              Indi-Mon
+            </h1>
+
+            {/* Subtitle */}
+            <p className="font-serif text-2xl text-[#f5de8b] tracking-wider mb-20 opacity-90">
+              Gotta Map ’Em All
+            </p>
+
+            {/* Tap Indicator */}
+            <div className="flex flex-col items-center gap-4 animate-pulse">
+              <div className="text-indi-gold">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                  <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                  <path d="M10 15V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                  <path d="M6 8v1a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2v0" />
+                  <path d="M20 12v4.17A4.45 4.45 0 0 1 15.63 20h0a5.62 5.62 0 0 0-3.6 1.48v0a2 2 0 0 1-2.6 0v0a6.52 6.52 0 0 0-5.32-2.38H4" />
+                </svg>
+              </div>
+
+              <div className="h-[1px] w-48 bg-gradient-to-r from-transparent via-indi-gold/50 to-transparent"></div>
+
+              <span className="font-serif text-3xl text-indi-gold uppercase tracking-[0.3em] font-light">
+                Invoke to Begin
+              </span>
+
+              <div className="h-[1px] w-48 bg-gradient-to-r from-transparent via-indi-gold/50 to-transparent"></div>
+            </div>
           </div>
         </div>
       ) : (
