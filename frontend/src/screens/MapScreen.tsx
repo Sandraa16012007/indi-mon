@@ -82,23 +82,21 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
         heritageSites.forEach((site) => {
             const latlng: L.LatLngExpression = [site.coordinates[1], site.coordinates[0]];
 
+            const statusColor = site.status === 'Verified' ? '#f59e0b' : 
+                               site.status === 'Pending' ? '#fbbf24' : '#94a3b8';
+
             const icon = L.divIcon({
-                className: 'custom-leaflet-marker',
+                className: 'custom-div-icon',
                 html: `
                     <div class="marker-disk" style="
-                        width: 40px; 
-                        height: 40px; 
-                        border-radius: 50%; 
-                        background-color: rgba(245, 158, 11, 0.2); 
-                        border: 2px solid #f59e0b; 
-                        display: flex; 
-                        align-items: center; 
-                        justify-content: center; 
-                        box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-                        transition: all 0.3s ease;
-                        cursor: pointer;
+                        width: 100%; height: 100%;
+                        background-color: ${statusColor}33;
+                        border: 1px solid ${statusColor}aa;
+                        border-radius: 50%; display: flex;
+                        align-items: center; justify-content: center;
+                        backdrop-filter: blur(4px); transition: all 0.3s;
                     ">
-                        ${getIconHtml(site.category)}
+                        ${getIconHtml(site.category, statusColor)}
                     </div>
                 `,
                 iconSize: [40, 40],
@@ -111,7 +109,7 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
                 const el = e.target.getElement()?.querySelector('.marker-disk') as HTMLElement;
                 if (el) {
                     el.style.transform = 'scale(1.2)';
-                    el.style.backgroundColor = 'rgba(245, 158, 11, 0.4)';
+                    el.style.backgroundColor = `${statusColor}66`;
                 }
             });
 
@@ -119,7 +117,7 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
                 const el = e.target.getElement()?.querySelector('.marker-disk') as HTMLElement;
                 if (el) {
                     el.style.transform = 'scale(1)';
-                    el.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+                    el.style.backgroundColor = `${statusColor}33`;
                 }
             });
 
@@ -138,13 +136,13 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
         };
     }, [userLocation]);
 
-    const getIconHtml = (category: string) => {
+    const getIconHtml = (category: string, color: string) => {
         if (category === 'temple') {
-            return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 2l10 10H2L12 2z"/><rect x="4" y="12" width="16" height="10"/></svg>`;
+            return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M12 2l10 10H2L12 2z"/><rect x="4" y="12" width="16" height="10"/></svg>`;
         } else if (category === 'fort') {
-            return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M3 21v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4M17 21v-4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v4M3 11V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5M3 11h18M3 11l2 2m16-2l-2 2M12 4v4M12 11l-2 2m4-2l-2 2"/></svg>`;
+            return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M3 21v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4M17 21v-4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v4M3 11V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5M3 11h18M3 11l2 2m16-2l-2 2M12 4v4M12 11l-2 2m4-2l-2 2"/></svg>`;
         } else {
-            return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>`;
+            return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>`;
         }
     };
 
@@ -199,20 +197,29 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
                             <div className="flex-1 min-w-0 flex flex-col justify-between">
                                 <div>
                                     <div className="flex justify-between items-start mb-1">
-                                        <h3 className="font-serif text-2xl leading-tight text-amber-950 truncate">{selectedSite.name}</h3>
-                                        <span className="text-[9px] font-bold bg-black text-white px-1.5 py-0.5 rounded ml-2 shrink-0">VERIFIED</span>
-                                    </div>
-                                    
-                                    {/* Coordinates label */}
-                                    <div className="flex items-center gap-1.5 text-[10px] text-amber-900/60 font-pixel mb-2">
-                                        <MapPin size={10} />
-                                        <span>Lat: {selectedSite.coordinates[1]}, Lng: {selectedSite.coordinates[0]}</span>
-                                    </div>
+                                         <h3 className="font-serif text-2xl leading-tight text-amber-950 truncate">{selectedSite.name}</h3>
+                                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ml-2 shrink-0 ${
+                                             selectedSite.status === 'Verified' ? 'bg-green-600 text-white' : 
+                                             selectedSite.status === 'Pending' ? 'bg-amber-500 text-white' : 
+                                             'bg-slate-500 text-white'
+                                         }`}>
+                                             {selectedSite.status.toUpperCase()}
+                                         </span>
+                                     </div>
+                                     
+                                     {/* Coordinates & Region label */}
+                                     <div className="flex items-center justify-between text-[10px] text-amber-900/60 font-pixel mb-2">
+                                         <div className="flex items-center gap-1.5">
+                                             <MapPin size={10} />
+                                             <span>{selectedSite.coordinates[1].toFixed(4)}, {selectedSite.coordinates[0].toFixed(4)}</span>
+                                         </div>
+                                         <span className="bg-amber-900/10 px-1.5 rounded">{selectedSite.region}</span>
+                                     </div>
 
-                                    <p className="text-xs text-amber-950 leading-relaxed font-serif line-clamp-2 md:line-clamp-3 mb-2">
-                                        {selectedSite.description}
-                                    </p>
-                                </div>
+                                     <p className="text-xs text-amber-950 leading-relaxed font-serif line-clamp-2 md:line-clamp-3 mb-2">
+                                         {selectedSite.description}
+                                     </p>
+                                 </div>
                             </div>
                         </div>
 
@@ -220,25 +227,35 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
                         <div className="px-5 pb-5 border-t border-amber-900/10 pt-3">
                             <div className="mb-3">
                                 <h4 className="text-[10px] font-pixel text-amber-800/70 uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                                    <span className="w-4 h-[1px] bg-amber-800/30"></span> Significance <span className="w-full h-[1px] bg-amber-800/30"></span>
+                                    <span className="w-4 h-[1px] bg-amber-800/30"></span> 
+                                    {selectedSite.status === 'Undiscovered' ? 'Ancient Rumor' : 'Significance'} 
+                                    <span className="w-full h-[1px] bg-amber-800/30"></span>
                                 </h4>
                                 <p className="text-[11px] text-amber-900 leading-snug font-serif italic">
-                                    {selectedSite.history}
+                                    {selectedSite.history || selectedSite.teaser || "History lost to the sands of time..."}
                                 </p>
                             </div>
 
-                            <div>
-                                <h4 className="text-[10px] font-pixel text-amber-800/70 uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                                    <span className="w-4 h-[1px] bg-amber-800/30"></span> Nearby Rituals <span className="w-full h-[1px] bg-amber-800/30"></span>
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {selectedSite.activities.map((activity, i) => (
-                                        <span key={i} className="text-[9px] font-bold bg-amber-900/5 text-amber-800 px-2 py-1 rounded-md border border-amber-900/10">
-                                            {activity}
-                                        </span>
-                                    ))}
+                            {selectedSite.activities && selectedSite.activities.length > 0 && (
+                                <div>
+                                    <h4 className="text-[10px] font-pixel text-amber-800/70 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                                        <span className="w-4 h-[1px] bg-amber-800/30"></span> Nearby Rituals <span className="w-full h-[1px] bg-amber-800/30"></span>
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedSite.activities.map((activity, i) => (
+                                            <span key={i} className="text-[9px] font-bold bg-amber-900/5 text-amber-800 px-2 py-1 rounded-md border border-amber-900/10">
+                                                {activity}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
+
+                            {selectedSite.discoveredOn && (
+                                <div className="mt-3 text-[9px] font-pixel text-amber-900/40 text-right uppercase tracking-tighter">
+                                    Logged on {selectedSite.discoveredOn}
+                                </div>
+                            )}
                         </div>
 
                         {/* Royal Seal decoration */}
