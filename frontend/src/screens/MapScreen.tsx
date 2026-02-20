@@ -2,14 +2,14 @@ import { useRef, useEffect, useState } from 'react';
 import { Camera, Home, MapPin, X } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { heritageSites } from '../data/heritageSites';
 import type { HeritageSite } from '../data/heritageSites';
 
 interface MapScreenProps {
+    sites: HeritageSite[];
     onShowCamera: () => void;
 }
 
-const MapScreen = ({ onShowCamera }: MapScreenProps) => {
+const MapScreen = ({ sites, onShowCamera }: MapScreenProps) => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<L.Map | null>(null);
     const [selectedSite, setSelectedSite] = useState<HeritageSite | null>(null);
@@ -79,11 +79,11 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
         setMapLoaded(true);
 
         // Add markers for heritage sites
-        heritageSites.forEach((site) => {
+        sites.forEach((site) => {
             const latlng: L.LatLngExpression = [site.coordinates[1], site.coordinates[0]];
 
-            const statusColor = site.status === 'Verified' ? '#f59e0b' : 
-                               site.status === 'Pending' ? '#fbbf24' : '#94a3b8';
+            const statusColor = site.status === 'Verified' ? '#f59e0b' :
+                site.status === 'Pending' ? '#fbbf24' : '#94a3b8';
 
             const icon = L.divIcon({
                 className: 'custom-div-icon',
@@ -165,14 +165,14 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
 
             {/* Map UI Overlay */}
             <div className="absolute top-6 right-6 flex flex-col gap-3 z-20">
-                <button 
+                <button
                     onClick={resetView}
                     className="p-3 bg-black/60 text-indi-gold border border-indi-gold/30 rounded-lg backdrop-blur hover:bg-black/80 transition-colors group"
                     title="Reset View"
                 >
                     <Home size={20} className="group-hover:scale-110 transition-transform" />
                 </button>
-                
+
             </div>
 
             {/* Active Site Detailed Info Card */}
@@ -180,7 +180,7 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
                 {selectedSite && (
                     <div className="bg-[#fdf6e3] rounded-2xl overflow-hidden text-slate-900 shadow-2xl relative group border-2 border-indi-gold/30">
                         {/* Close button */}
-                        <button 
+                        <button
                             onClick={() => setSelectedSite(null)}
                             className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/10 hover:bg-black/20 rounded-full transition-colors z-10"
                         >
@@ -197,29 +197,28 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
                             <div className="flex-1 min-w-0 flex flex-col justify-between">
                                 <div>
                                     <div className="flex justify-between items-start mb-1">
-                                         <h3 className="font-serif text-2xl leading-tight text-amber-950 truncate">{selectedSite.name}</h3>
-                                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ml-2 shrink-0 ${
-                                             selectedSite.status === 'Verified' ? 'bg-green-600 text-white' : 
-                                             selectedSite.status === 'Pending' ? 'bg-amber-500 text-white' : 
-                                             'bg-slate-500 text-white'
-                                         }`}>
-                                             {selectedSite.status.toUpperCase()}
-                                         </span>
-                                     </div>
-                                     
-                                     {/* Coordinates & Region label */}
-                                     <div className="flex items-center justify-between text-[10px] text-amber-900/60 font-pixel mb-2">
-                                         <div className="flex items-center gap-1.5">
-                                             <MapPin size={10} />
-                                             <span>{selectedSite.coordinates[1].toFixed(4)}, {selectedSite.coordinates[0].toFixed(4)}</span>
-                                         </div>
-                                         <span className="bg-amber-900/10 px-1.5 rounded">{selectedSite.region}</span>
-                                     </div>
+                                        <h3 className="font-serif text-2xl leading-tight text-amber-950 truncate">{selectedSite.name}</h3>
+                                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ml-2 shrink-0 ${selectedSite.status === 'Verified' ? 'bg-green-600 text-white' :
+                                            selectedSite.status === 'Pending' ? 'bg-amber-500 text-white' :
+                                                'bg-slate-500 text-white'
+                                            }`}>
+                                            {selectedSite.status.toUpperCase()}
+                                        </span>
+                                    </div>
 
-                                     <p className="text-xs text-amber-950 leading-relaxed font-serif line-clamp-2 md:line-clamp-3 mb-2">
-                                         {selectedSite.description}
-                                     </p>
-                                 </div>
+                                    {/* Coordinates & Region label */}
+                                    <div className="flex items-center justify-between text-[10px] text-amber-900/60 font-pixel mb-2">
+                                        <div className="flex items-center gap-1.5">
+                                            <MapPin size={10} />
+                                            <span>{selectedSite.coordinates[1].toFixed(4)}, {selectedSite.coordinates[0].toFixed(4)}</span>
+                                        </div>
+                                        <span className="bg-amber-900/10 px-1.5 rounded">{selectedSite.region}</span>
+                                    </div>
+
+                                    <p className="text-xs text-amber-950 leading-relaxed font-serif line-clamp-2 md:line-clamp-3 mb-2">
+                                        {selectedSite.description}
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
@@ -227,8 +226,8 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
                         <div className="px-5 pb-5 border-t border-amber-900/10 pt-3">
                             <div className="mb-3">
                                 <h4 className="text-[10px] font-pixel text-amber-800/70 uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                                    <span className="w-4 h-[1px] bg-amber-800/30"></span> 
-                                    {selectedSite.status === 'Undiscovered' ? 'Ancient Rumor' : 'Significance'} 
+                                    <span className="w-4 h-[1px] bg-amber-800/30"></span>
+                                    {selectedSite.status === 'Undiscovered' ? 'Ancient Rumor' : 'Significance'}
                                     <span className="w-full h-[1px] bg-amber-800/30"></span>
                                 </h4>
                                 <p className="text-[11px] text-amber-900 leading-snug font-serif italic">

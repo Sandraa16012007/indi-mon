@@ -4,12 +4,12 @@ import { useState, useMemo } from 'react';
 import { heritageSites } from '../data/heritageSites';
 import type { HeritageSite } from '../data/heritageSites';
 
-const HeritageDexScreen = ({ onOpenInfo }: { onOpenInfo: (site: HeritageSite) => void }) => {
-    const [activeFilter, setActiveFilter] = useState<'ALL' | 'DELHI' | 'KERALA' | 'RAJASTHAN' | 'UNDISCOVERED'>('ALL');
+const HeritageDexScreen = ({ sites, onOpenInfo }: { sites: HeritageSite[], onOpenInfo: (site: HeritageSite) => void }) => {
+    const [activeFilter, setActiveFilter] = useState<'ALL' | 'DELHI' | 'KERALA' | 'RAJASTHAN' | 'HAMPI' | 'UNDISCOVERED'>('ALL');
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredSites = useMemo(() => {
-        return heritageSites.filter(site => {
+        return sites.filter(site => {
             const matchesSearch = site.name.toLowerCase().includes(searchQuery.toLowerCase());
 
             if (activeFilter === 'UNDISCOVERED') {
@@ -17,8 +17,7 @@ const HeritageDexScreen = ({ onOpenInfo }: { onOpenInfo: (site: HeritageSite) =>
             }
 
             if (activeFilter === 'ALL') {
-                // Show discovered sites, but we'll include undiscovered in the UI differently
-                return site.status !== 'Undiscovered' && matchesSearch;
+                return site.status === 'Verified' && matchesSearch;
             }
 
             const regionFilterMap: Record<string, string> = {
@@ -28,29 +27,29 @@ const HeritageDexScreen = ({ onOpenInfo }: { onOpenInfo: (site: HeritageSite) =>
                 'HAMPI': 'Hampi'
             };
 
-            return site.region === regionFilterMap[activeFilter] && site.status !== 'Undiscovered' && matchesSearch;
+            return site.region === regionFilterMap[activeFilter] && site.status === 'Verified' && matchesSearch;
         });
-    }, [activeFilter, searchQuery]);
+    }, [activeFilter, searchQuery, sites]);
 
     const undiscoveredSites = useMemo(() => {
         if (activeFilter === 'UNDISCOVERED') return []; // Handled by filteredSites
-        return heritageSites.filter(site =>
+        return sites.filter(site =>
             site.status === 'Undiscovered' &&
             site.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
             (activeFilter === 'ALL' || site.region.toUpperCase() === activeFilter)
         );
-    }, [activeFilter, searchQuery]);
+    }, [activeFilter, searchQuery, sites]);
 
     const counts = useMemo(() => {
         return {
-            ALL: heritageSites.filter(s => s.status !== 'Undiscovered').length,
-            DELHI: heritageSites.filter(s => s.region === 'Delhi' && s.status !== 'Undiscovered').length,
-            KERALA: heritageSites.filter(s => s.region === 'Kerala' && s.status !== 'Undiscovered').length,
-            RAJASTHAN: heritageSites.filter(s => s.region === 'Rajasthan' && s.status !== 'Undiscovered').length,
-            HAMPI: heritageSites.filter(s => s.region === 'Hampi' && s.status !== 'Undiscovered').length,
-            UNDISCOVERED: heritageSites.filter(s => s.status === 'Undiscovered').length,
+            ALL: sites.filter(s => s.status === 'Verified').length,
+            DELHI: sites.filter(s => s.region === 'Delhi' && s.status === 'Verified').length,
+            KERALA: sites.filter(s => s.region === 'Kerala' && s.status === 'Verified').length,
+            RAJASTHAN: sites.filter(s => s.region === 'Rajasthan' && s.status === 'Verified').length,
+            HAMPI: sites.filter(s => s.region === 'Hampi' && s.status === 'Verified').length,
+            UNDISCOVERED: sites.filter(s => s.status === 'Undiscovered').length,
         };
-    }, []);
+    }, [sites]);
 
     return (
         <motion.div
@@ -80,7 +79,7 @@ const HeritageDexScreen = ({ onOpenInfo }: { onOpenInfo: (site: HeritageSite) =>
                             <span className="text-sm text-slate-600">/ {heritageSites.length}</span>
                         </div>
                         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-amber-500 transition-all duration-1000" style={{ width: `${(counts.ALL / heritageSites.length) * 100}%` }}></div>
+                            <div className="h-full bg-amber-500 transition-all duration-1000" style={{ width: `${(counts.ALL / sites.length) * 100}%` }}></div>
                         </div>
                     </div>
                 </div>

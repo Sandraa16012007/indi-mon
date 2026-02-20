@@ -13,6 +13,8 @@ export interface HeritageSite {
     isRare?: boolean;
     teaser?: string;
     visitorCount?: number;
+    submittedBy?: string;
+    submissionDate?: string;
     comments?: {
         id: string;
         user: string;
@@ -90,7 +92,9 @@ export const heritageSites: HeritageSite[] = [
         region: 'Hampi',
         status: 'Pending',
         discoveredOn: '15 Oct',
-        visitorCount: 4500
+        visitorCount: 4500,
+        submittedBy: 'AryanX',
+        submissionDate: '14 Oct'
     },
     {
         id: '4',
@@ -104,7 +108,39 @@ export const heritageSites: HeritageSite[] = [
         region: 'Delhi',
         status: 'Pending',
         discoveredOn: '20 Nov',
-        visitorCount: 15600
+        visitorCount: 15600,
+        submittedBy: 'Delhi_Explorer',
+        submissionDate: '18 Nov'
+    },
+    {
+        id: 'p1',
+        name: 'Unnamed Stepwell',
+        description: 'A deep, multi-story stepwell discovered in the outskirts of Mehrauli. Features intricate geometric carvings.',
+        history: 'Likely dating to the Lodi period, though its specific builder remains undocumented.',
+        activities: ['Documentation', 'Depth Measurement'],
+        coordinates: [77.1844, 28.5211],
+        category: 'monument',
+        image: '/assets/temple.jpg',
+        region: 'Delhi',
+        status: 'Pending',
+        submittedBy: 'HistoryBuff99',
+        submissionDate: 'Yesterday',
+        visitorCount: 12
+    },
+    {
+        id: 'p2',
+        name: 'Abandoned Watchtower',
+        description: 'A strategic watchtower overlooking the ancient trade routes near Kumbhalgarh.',
+        history: 'Part of the outer defense perimeter of the Mewar kingdom.',
+        activities: ['Climbing', 'Panoramic View'],
+        coordinates: [73.5721, 25.1312],
+        category: 'fort',
+        image: '/assets/Kumbhalgarh-Fort.jpg',
+        region: 'Rajasthan',
+        status: 'Pending',
+        submittedBy: 'FortGuardian',
+        submissionDate: '3 days ago',
+        visitorCount: 5
     },
     {
         id: '5',
@@ -174,7 +210,6 @@ export const heritageSites: HeritageSite[] = [
         image: '/assets/kerala-jatayu-para.jpg',
         region: 'Kerala',
         status: 'Undiscovered',
-        teaser: 'A mythical bird turned to stone near the southern peaks...',
         visitorCount: 1200
     },
     {
@@ -239,7 +274,6 @@ export const heritageSites: HeritageSite[] = [
         image: '/assets/Kumbhalgarh-Fort.jpg',
         region: 'Rajasthan',
         status: 'Undiscovered',
-        teaser: 'The invincible cloud-fortress with a wall like the Great Serpent...',
         visitorCount: 3400
     }
 ];
