@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Shield, Compass } from 'lucide-react';
+import { LogOut, Shield, Compass, Edit2, Trash2, X, Check } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 
 const SettingsScreen = () => {
@@ -9,6 +10,13 @@ const SettingsScreen = () => {
     const explorerName = user?.user_metadata?.explorer_name || 'Explorer';
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [fullName, setFullName] = useState(explorerName);
+    const [phone, setPhone] = useState(user?.user_metadata?.phone || '');
+    const [organization, setOrganization] = useState(user?.user_metadata?.organization || '');
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
@@ -16,6 +24,33 @@ const SettingsScreen = () => {
         await new Promise(resolve => setTimeout(resolve, 2000));
         await supabase.auth.signOut();
         // Redirect logic is handled in App.tsx via useAuth state change
+    };
+
+    const handleUpdate = async () => {
+        setIsUpdating(true);
+        try {
+            const data = await api.updateUser({ full_name: fullName, phone, organization });
+            if (data.error) throw new Error(data.error.message);
+            // In a real app, we might want to refresh the auth state or user metadata here
+            setIsEditing(false);
+        } catch (error) {
+            console.error('Update failed:', error);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        try {
+            const data = await api.deleteUser();
+            if (data.error) throw new Error(data.error.message);
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error('Delete failed:', error);
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return (
@@ -64,23 +99,67 @@ const SettingsScreen = () => {
                                 </div>
                                 <div className="absolute -bottom-2 -right-2 bg-indi-gold text-black text-xl font-bold font-pixel w-10 h-10 rounded-full flex items-center justify-center border-2 border-black z-20">42</div>
                             </div>
-
+ 
                             <div className="flex-1">
                                 <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h4 className="text-4xl font-serif text-slate-100 tracking-wide mb-1">{explorerName}</h4>
-                                        <p className="text-indi-gold font-serif text-sm tracking-[0.2em] uppercase opacity-80">Grand Sage</p>
+                                    <div className="flex-1">
+                                        {isEditing ? (
+                                            <div className="space-y-4 max-w-md">
+                                                <input 
+                                                    value={fullName} 
+                                                    onChange={e => setFullName(e.target.value)}
+                                                    className="w-full bg-black/40 border border-indi-gold/30 rounded-lg px-4 py-2 text-2xl font-serif text-slate-100 focus:outline-none focus:border-indi-gold"
+                                                    placeholder="Explorer Name"
+                                                />
+                                                <input 
+                                                    value={phone} 
+                                                    onChange={e => setPhone(e.target.value)}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-slate-300 focus:outline-none focus:border-indi-gold/40"
+                                                    placeholder="Phone"
+                                                />
+                                                <input 
+                                                    value={organization} 
+                                                    onChange={e => setOrganization(e.target.value)}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-slate-300 focus:outline-none focus:border-indi-gold/40"
+                                                    placeholder="Organization"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <h4 className="text-4xl font-serif text-slate-100 tracking-wide mb-1">{fullName}</h4>
+                                                <p className="text-indi-gold font-serif text-sm tracking-[0.2em] uppercase opacity-80">Grand Sage</p>
+                                                {organization && <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest">{organization}</p>}
+                                            </>
+                                        )}
                                     </div>
-                                    <div className="text-right">
-                                        <span className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Wisdom Accumulated</span>
-                                        <span className="text-2xl font-pixel text-indi-gold">68,400 XP</span>
+                                    <div className="flex flex-col items-end gap-4">
+                                        <div className="text-right">
+                                            <span className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Wisdom Accumulated</span>
+                                            <span className="text-2xl font-pixel text-indi-gold">68,400 XP</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            {isEditing ? (
+                                                <>
+                                                    <button onClick={handleUpdate} disabled={isUpdating} className="p-2 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg hover:bg-green-500/20 transition-colors">
+                                                        <Check size={20} />
+                                                    </button>
+                                                    <button onClick={() => setIsEditing(false)} className="p-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors">
+                                                        <X size={20} />
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <button onClick={() => setIsEditing(true)} className="p-2 bg-indi-gold/10 text-indi-gold border border-indi-gold/20 rounded-lg hover:bg-indi-gold/20 transition-colors">
+                                                    <Edit2 size={20} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-
+ 
                                 <p className="text-slate-400 font-serif italic text-lg leading-relaxed mb-6 border-l-2 border-indi-gold/20 pl-6">
                                     "Bearer of Records, Seeker of Lost Sites. Your journey through the fog of history has illuminated the paths of many."
                                 </p>
-
+ 
                                 <div className="w-full">
                                     <div className="flex justify-between text-[10px] uppercase tracking-widest text-slate-500 mb-2">
                                         <span>Path to Next Enlightenment</span>
@@ -100,23 +179,36 @@ const SettingsScreen = () => {
                     </div>
                 </section>
 
-                {/* Logout Section */}
+                {/* Logout & Delete Section */}
                 <section className="pt-8">
-                    <div className="max-w-4xl mx-auto flex flex-col items-center">
-                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent mb-12"></div>
+                    <div className="max-w-4xl mx-auto flex flex-col items-center gap-8">
+                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent mb-4"></div>
 
-                        <button
-                            onClick={() => setShowConfirm(true)}
-                            className="group relative px-12 py-5 bg-transparent border border-indi-gold/30 rounded-xl overflow-hidden transition-all hover:border-indi-gold/60 active:scale-95 shadow-lg"
-                        >
-                            <div className="absolute inset-0 bg-indi-gold/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                            <div className="relative flex items-center gap-4">
-                                <LogOut size={20} className="text-indi-gold group-hover:rotate-12 transition-transform" />
-                                <span className="text-xl font-serif text-indi-gold uppercase tracking-[0.3em] font-light">Log Out</span>
-                            </div>
-                        </button>
+                        <div className="flex gap-6">
+                            <button
+                                onClick={() => setShowConfirm(true)}
+                                className="group relative px-12 py-5 bg-transparent border border-indi-gold/30 rounded-xl overflow-hidden transition-all hover:border-indi-gold/60 active:scale-95 shadow-lg"
+                            >
+                                <div className="absolute inset-0 bg-indi-gold/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                <div className="relative flex items-center gap-4">
+                                    <LogOut size={20} className="text-indi-gold group-hover:rotate-12 transition-transform" />
+                                    <span className="text-xl font-serif text-indi-gold uppercase tracking-[0.3em] font-light">Log Out</span>
+                                </div>
+                            </button>
 
-                        <p className="mt-6 text-[10px] text-slate-600 uppercase tracking-[0.3em]">Seal your ledger and exit the gateway</p>
+                            <button
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="group relative px-12 py-5 bg-transparent border border-red-500/30 rounded-xl overflow-hidden transition-all hover:border-red-500/60 active:scale-95 shadow-lg"
+                            >
+                                <div className="absolute inset-0 bg-red-500/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                <div className="relative flex items-center gap-4">
+                                    <Trash2 size={20} className="text-red-500 group-hover:animate-pulse transition-transform" />
+                                    <span className="text-xl font-serif text-red-500 uppercase tracking-[0.3em] font-light">Erase Presence</span>
+                                </div>
+                            </button>
+                        </div>
+
+                        <p className="text-[10px] text-slate-600 uppercase tracking-[0.3em]">Seal your ledger and exit the gateway</p>
                     </div>
                 </section>
             </div>
@@ -176,6 +268,59 @@ const SettingsScreen = () => {
                                     </div>
                                     <h3 className="text-2xl font-serif text-indi-gold tracking-[0.2em] uppercase animate-pulse">Sealing the Chronicle...</h3>
                                     <p className="text-slate-500 font-pixel text-sm tracking-widest mt-4">Returning to the Outer Gate</p>
+                                </div>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {(showDeleteConfirm || isDeleting) && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-xl"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="w-full max-w-lg bg-[#0f172a] border border-red-500/20 rounded-2xl p-12 text-center relative overflow-hidden shadow-[0_0_100px_rgba(255,0,0,0.1)]"
+                        >
+                            {!isDeleting ? (
+                                <>
+                                    <div className="mb-8 w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20">
+                                        <Trash2 size={36} className="text-red-500" />
+                                    </div>
+                                    <h3 className="text-3xl font-serif text-red-500 mb-4 tracking-wide">Erase Forever?</h3>
+                                    <p className="text-slate-400 font-serif italic text-lg mb-10 px-4">
+                                        "This act is irreversible. Your records, stamps, and enlightenment will be purged from the ancient scrolls."
+                                    </p>
+                                    <div className="flex flex-col gap-4">
+                                        <button
+                                            onClick={handleDelete}
+                                            className="w-full py-4 bg-red-600 text-white font-bold font-serif uppercase tracking-widest rounded-xl hover:bg-red-500 transition-colors shadow-lg shadow-red-900/20"
+                                        >
+                                            Confirm Oblivion
+                                        </button>
+                                        <button
+                                            onClick={() => setShowDeleteConfirm(false)}
+                                            className="w-full py-4 bg-transparent text-slate-500 font-serif uppercase tracking-widest rounded-xl hover:text-slate-300 transition-colors"
+                                        >
+                                            Preserve Legacy
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="py-10">
+                                     <div className="relative w-24 h-24 mx-auto mb-8">
+                                        <div className="absolute inset-0 border-4 border-red-500/20 rounded-full"></div>
+                                        <div className="absolute inset-0 border-4 border-t-red-500 rounded-full animate-spin"></div>
+                                    </div>
+                                    <h3 className="text-2xl font-serif text-red-500 tracking-[0.2em] uppercase animate-pulse">Purging Records...</h3>
                                 </div>
                             )}
                         </motion.div>
