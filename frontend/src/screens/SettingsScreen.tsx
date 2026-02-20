@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const SettingsScreen = () => {
     const { user } = useAuth();
-    const explorerName = user?.user_metadata?.explorer_name || 'Explorer';
+    const displayName = user?.user_metadata?.full_name || 'Explorer';
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

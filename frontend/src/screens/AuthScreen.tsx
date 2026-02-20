@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, User, Eye, EyeOff, BookOpen, Key, MoveLeft, Shield, Info } from 'lucide-react';
+import { Mail, User, Eye, EyeOff, BookOpen, Key, MoveLeft, Shield, Info, Phone, Building2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { api } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -54,7 +54,9 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
     const [mode, setMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [displayName, setDisplayName] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [organisation, setOrganisation] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -174,13 +176,13 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
                         />
                     </div>
 
-                    <div className="p-8 md:p-10">
+                    <div className="p-6 md:p-8">
                         {/* Form Heading */}
-                        <div className="text-center mb-8">
-                            <h2 className="font-serif text-3xl md:text-4xl text-indi-gold mb-2 tracking-tight">
+                        <div className="text-center mb-6">
+                            <h2 className="font-serif text-2xl md:text-3xl text-indi-gold mb-1 tracking-tight">
                                 {mode === 'LOGIN' ? 'Invoke Entry' : 'The Archivist’s Registry'}
                             </h2>
-                            <p className="font-serif italic text-white/40 text-sm md:text-base">
+                            <p className="font-serif italic text-white/40 text-xs md:text-sm">
                                 {mode === 'LOGIN'
                                     ? 'Explorers must be recorded before knowledge is granted'
                                     : 'Register your presence in the great Indi-Mon record'}
@@ -188,35 +190,77 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleAuth} className="space-y-5">
+                        <form onSubmit={handleAuth} className="space-y-3">
                             {mode === 'SIGNUP' && (
-                                <div className="space-y-2">
-                                    <label className="block font-serif text-[10px] text-indi-gold tracking-[0.25em] uppercase opacity-60 ml-1">
-                                        Explorer Name
-                                    </label>
-                                    <div className="relative group">
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-indi-gold transition-colors">
-                                            <User size={18} />
+                                <>
+                                    <div className="space-y-1">
+                                        <label className="block font-pixel text-[10px] text-indi-gold tracking-[0.15em] uppercase opacity-80 ml-1">
+                                            Full Name
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-indi-gold transition-colors">
+                                                <User size={16} />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                placeholder="Enter your full designation"
+                                                className="w-full bg-[#020617]/60 border border-white/5 rounded-xl py-2.5 pl-11 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-indi-gold/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] transition-all text-sm"
+                                            />
                                         </div>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={displayName}
-                                            onChange={(e) => setDisplayName(e.target.value)}
-                                            placeholder="Enter your archival designation"
-                                            className="w-full bg-[#020617]/60 border border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-indi-gold/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] transition-all"
-                                        />
                                     </div>
-                                </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <label className="block font-pixel text-[10px] text-indi-gold tracking-[0.15em] uppercase opacity-80 ml-1">
+                                                Phone
+                                            </label>
+                                            <div className="relative group">
+                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-indi-gold transition-colors">
+                                                    <Phone size={14} />
+                                                </div>
+                                                <input
+                                                    type="tel"
+                                                    required
+                                                    value={phone}
+                                                    onChange={(e) => setPhone(e.target.value)}
+                                                    placeholder="+91..."
+                                                    className="w-full bg-[#020617]/60 border border-white/5 rounded-xl py-2.5 pl-11 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-indi-gold/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] transition-all text-sm"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="block font-pixel text-[10px] text-indi-gold tracking-[0.15em] uppercase opacity-80 ml-1">
+                                                Organisation
+                                            </label>
+                                            <div className="relative group">
+                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-indi-gold transition-colors">
+                                                    <Building2 size={14} />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    value={organisation}
+                                                    onChange={(e) => setOrganisation(e.target.value)}
+                                                    placeholder="Guild / Inst."
+                                                    className="w-full bg-[#020617]/60 border border-white/5 rounded-xl py-2.5 pl-11 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-indi-gold/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] transition-all text-sm"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
                             )}
 
-                            <div className="space-y-2">
-                                <label className="block font-serif text-[10px] text-indi-gold tracking-[0.25em] uppercase opacity-60 ml-1">
+                            <div className="space-y-1">
+                                <label className="block font-pixel text-[10px] text-indi-gold tracking-[0.15em] uppercase opacity-80 ml-1">
                                     {mode === 'LOGIN' ? 'Email Identifier' : 'Email Address'}
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-indi-gold transition-colors">
-                                        <Mail size={18} />
+                                        <Mail size={16} />
                                     </div>
                                     <input
                                         type="email"
@@ -224,18 +268,18 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder={mode === 'LOGIN' ? 'Enter your recorded email' : 'archivist@indi-mon.heritage'}
-                                        className="w-full bg-[#020617]/60 border border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-indi-gold/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] transition-all"
+                                        className="w-full bg-[#020617]/60 border border-white/5 rounded-xl py-2.5 pl-11 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-indi-gold/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] transition-all text-sm"
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="block font-serif text-[10px] text-indi-gold tracking-[0.25em] uppercase opacity-60 ml-1">
+                            <div className="space-y-1">
+                                <label className="block font-pixel text-[10px] text-indi-gold tracking-[0.15em] uppercase opacity-80 ml-1">
                                     {mode === 'LOGIN' ? 'Secret Cipher' : 'Secret Phrase'}
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-indi-gold transition-colors">
-                                        <Key size={18} />
+                                        <Key size={16} />
                                     </div>
                                     <input
                                         type={showPassword ? 'text' : 'password'}
@@ -243,23 +287,23 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••••••"
-                                        className="w-full bg-[#020617]/60 border border-white/5 rounded-xl py-3.5 pl-12 pr-12 text-white placeholder:text-white/10 focus:outline-none focus:border-indi-gold/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] transition-all"
+                                        className="w-full bg-[#020617]/60 border border-white/5 rounded-xl py-2.5 pl-11 pr-11 text-white placeholder:text-white/10 focus:outline-none focus:border-indi-gold/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] transition-all text-sm"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors"
                                     >
-                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
                                 </div>
                             </div>
 
                             {mode === 'LOGIN' && (
-                                <div className="flex items-center justify-between text-xs px-1">
+                                <div className="flex items-center justify-between text-[10px] px-1">
                                     <label className="flex items-center gap-2 text-white/30 hover:text-white/50 cursor-pointer transition-colors group">
-                                        <div className="w-4 h-4 rounded border border-white/10 flex items-center justify-center group-hover:border-indi-gold/40 transition-colors bg-[#020617]">
-                                            <div className="w-2 h-2 rounded-sm bg-indi-gold opacity-0 group-hover:opacity-20"></div>
+                                        <div className="w-3.5 h-3.5 rounded border border-white/10 flex items-center justify-center group-hover:border-indi-gold/40 transition-colors bg-[#020617]">
+                                            <div className="w-1.5 h-1.5 rounded-sm bg-indi-gold opacity-0 group-hover:opacity-20"></div>
                                         </div>
                                         <span>Remember Explorer</span>
                                     </label>
@@ -273,9 +317,9 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
                                 <motion.div
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs flex items-center gap-3"
+                                    className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-[10px] flex items-center gap-3"
                                 >
-                                    <Shield size={16} className="shrink-0" />
+                                    <Shield size={14} className="shrink-0" />
                                     {error}
                                 </motion.div>
                             )}
@@ -283,7 +327,7 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-indi-gold py-4 rounded-xl font-serif text-lg font-bold text-black uppercase tracking-[0.15em] hover:bg-indi-gold/90 transition-all flex items-center justify-center gap-3 shadow-[0_4px_20px_rgba(245,158,11,0.25)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.4)] disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden active:scale-[0.98] mt-4"
+                                className="w-full bg-indi-gold py-3.5 rounded-xl font-serif text-base font-bold text-black uppercase tracking-[0.15em] hover:bg-indi-gold/90 transition-all flex items-center justify-center gap-3 shadow-[0_4px_20px_rgba(245,158,11,0.25)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.4)] disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden active:scale-[0.98] mt-2"
                             >
                                 <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
                                 {loading ? (
