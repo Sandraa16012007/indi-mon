@@ -2,8 +2,9 @@ import { useRef, useEffect, useState } from 'react';
 import { Camera, Home, MapPin, X, Users } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { heritageSites } from '../data/heritageSites';
+import { heritageSites as staticHeritageSites } from '../data/heritageSites';
 import type { HeritageSite } from '../data/heritageSites';
+import { supabase } from '../lib/supabaseClient';
 
 interface MapScreenProps {
     onShowCamera: () => void;
@@ -15,6 +16,7 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
     const [selectedSite, setSelectedSite] = useState<HeritageSite | null>(null);
     const [mapLoaded, setMapLoaded] = useState(false);
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+    const [dynamicSites, setDynamicSites] = useState<HeritageSite[]>([]);
 
     useEffect(() => {
         // Request user location
@@ -31,6 +33,29 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
         } else {
             setUserLocation([28.6139, 77.2090]);
         }
+
+        // Fetch dynamic sites from Supabase
+        const fetchDiscoveries = async () => {
+            const { data, error } = await supabase
+                .from('heritage_sites')
+                .select('*');
+            
+            if (error) {
+                console.error('Error fetching discoveries for map:', error);
+                return;
+            }
+
+            if (data) {
+                const mappedData: HeritageSite[] = data.map(item => ({
+                    ...item,
+                    id: `db-${item.id}`,
+                    coordinates: item.coordinates || [0, 0]
+                }));
+                setDynamicSites(mappedData);
+            }
+        };
+
+        fetchDiscoveries();
     }, []);
 
     useEffect(() => {
@@ -79,7 +104,8 @@ const MapScreen = ({ onShowCamera }: MapScreenProps) => {
         setMapLoaded(true);
 
         // Add markers for heritage sites
-        heritageSites.forEach((site) => {
+        const allSites = [...staticHeritageSites, ...dynamicSites];
+        allSites.forEach((site: HeritageSite) => {
             const latlng: L.LatLngExpression = [site.coordinates[1], site.coordinates[0]];
 
             const statusColor = site.status === 'Verified' ? '#f59e0b' : 

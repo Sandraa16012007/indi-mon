@@ -1,15 +1,48 @@
 import { Search, Map, Info, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useMemo } from 'react';
-import { heritageSites } from '../data/heritageSites';
+import { useState, useMemo, useEffect } from 'react';
+import { heritageSites as staticHeritageSites } from '../data/heritageSites';
 import type { HeritageSite } from '../data/heritageSites';
+import { supabase } from '../lib/supabaseClient';
 
 const HeritageDexScreen = ({ onOpenInfo }: { onOpenInfo: (site: HeritageSite) => void }) => {
     const [activeFilter, setActiveFilter] = useState<'ALL' | 'DELHI' | 'KERALA' | 'RAJASTHAN' | 'HAMPI' | 'UNDISCOVERED'>('ALL');
     const [searchQuery, setSearchQuery] = useState('');
+    const [dynamicSites, setDynamicSites] = useState<HeritageSite[]>([]);
+
+    useEffect(() => {
+        const fetchDiscoveries = async () => {
+            const { data, error } = await supabase
+                .from('heritage_sites')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching discoveries:', error);
+                return;
+            }
+
+            if (data) {
+                // Map DB schema to HeritageSite interface if needed
+                const mappedData: HeritageSite[] = data.map(item => ({
+                    ...item,
+                    id: `db-${item.id}`,
+                    // Ensure coordinates are in [lng, lat] format
+                    coordinates: item.coordinates || [0, 0]
+                }));
+                setDynamicSites(mappedData);
+            }
+        };
+
+        fetchDiscoveries();
+    }, []);
+
+    const allSites = useMemo(() => {
+        return [...staticHeritageSites, ...dynamicSites];
+    }, [dynamicSites]);
 
     const filteredSites = useMemo(() => {
-        return heritageSites.filter(site => {
+        return allSites.filter(site => {
             const matchesSearch = site.name.toLowerCase().includes(searchQuery.toLowerCase());
 
             if (activeFilter === 'UNDISCOVERED') {
@@ -30,27 +63,27 @@ const HeritageDexScreen = ({ onOpenInfo }: { onOpenInfo: (site: HeritageSite) =>
 
             return site.region === regionFilterMap[activeFilter] && site.status !== 'Undiscovered' && matchesSearch;
         });
-    }, [activeFilter, searchQuery]);
+    }, [activeFilter, searchQuery, allSites]);
 
     const undiscoveredSites = useMemo(() => {
         if (activeFilter === 'UNDISCOVERED') return []; // Handled by filteredSites
-        return heritageSites.filter(site =>
+        return allSites.filter(site =>
             site.status === 'Undiscovered' &&
             site.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
             (activeFilter === 'ALL' || site.region.toUpperCase() === activeFilter)
         );
-    }, [activeFilter, searchQuery]);
+    }, [activeFilter, searchQuery, allSites]);
 
     const counts = useMemo(() => {
         return {
-            ALL: heritageSites.filter(s => s.status !== 'Undiscovered').length,
-            DELHI: heritageSites.filter(s => s.region === 'Delhi' && s.status !== 'Undiscovered').length,
-            KERALA: heritageSites.filter(s => s.region === 'Kerala' && s.status !== 'Undiscovered').length,
-            RAJASTHAN: heritageSites.filter(s => s.region === 'Rajasthan' && s.status !== 'Undiscovered').length,
-            HAMPI: heritageSites.filter(s => s.region === 'Hampi' && s.status !== 'Undiscovered').length,
-            UNDISCOVERED: heritageSites.filter(s => s.status === 'Undiscovered').length,
+            ALL: allSites.filter(s => s.status !== 'Undiscovered').length,
+            DELHI: allSites.filter(s => s.region === 'Delhi' && s.status !== 'Undiscovered').length,
+            KERALA: allSites.filter(s => s.region === 'Kerala' && s.status !== 'Undiscovered').length,
+            RAJASTHAN: allSites.filter(s => s.region === 'Rajasthan' && s.status !== 'Undiscovered').length,
+            HAMPI: allSites.filter(s => s.region === 'Hampi' && s.status !== 'Undiscovered').length,
+            UNDISCOVERED: allSites.filter(s => s.status === 'Undiscovered').length,
         };
-    }, []);
+    }, [allSites]);
 
     return (
         <motion.div
@@ -77,10 +110,10 @@ const HeritageDexScreen = ({ onOpenInfo }: { onOpenInfo: (site: HeritageSite) =>
                         </div>
                         <div className="flex items-baseline gap-2 mb-3">
                             <span className="text-3xl font-serif text-indi-gold">{counts.ALL}</span>
-                            <span className="text-sm text-slate-600">/ {heritageSites.length}</span>
+                            <span className="text-sm text-slate-600">/ {allSites.length}</span>
                         </div>
                         <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-amber-500 transition-all duration-1000" style={{ width: `${(counts.ALL / heritageSites.length) * 100}%` }}></div>
+                            <div className="h-full bg-amber-500 transition-all duration-1000" style={{ width: `${(counts.ALL / allSites.length) * 100}%` }}></div>
                         </div>
                     </div>
                 </div>

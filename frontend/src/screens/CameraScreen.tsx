@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { X, Zap, RefreshCw, Maximize, Camera, Check, AlertCircle, MapPin, ChevronDown } from 'lucide-react';
 import { heritageSites } from '../data/heritageSites';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabaseClient';
 
 const CameraScreen = ({ onClose }: { onClose: () => void }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -13,6 +14,8 @@ const CameraScreen = ({ onClose }: { onClose: () => void }) => {
     const [verificationResult, setVerificationResult] = useState<'SUCCESS' | 'PENDING' | 'DENIED' | null>(null);
     const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
     const [distanceError, setDistanceError] = useState<number | null>(null);
+    const [newMonumentName, setNewMonumentName] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         startCamera();
@@ -89,7 +92,7 @@ const CameraScreen = ({ onClose }: { onClose: () => void }) => {
         }
     };
 
-    const handleVerify = () => {
+    const handleVerify = async () => {
         if (!location) {
             alert("No location data found. Please enable GPS.");
             return;
@@ -98,8 +101,49 @@ const CameraScreen = ({ onClose }: { onClose: () => void }) => {
         setIsVerifying(true);
         setDistanceError(null);
         
-        setTimeout(() => {
+        try {
             if (selectedMonument === 'new') {
+                if (!newMonumentName) {
+                    alert("Please enter a name for the discovery.");
+                    setIsVerifying(false);
+                    return;
+                }
+
+                setIsUploading(true);
+                
+                // 1. Convert base64 to Blob
+                const base64Data = capturedImage!.split(',')[1];
+                const blob = await fetch(`data:image/jpeg;base64,${base64Data}`).then(res => res.blob());
+                
+                // 2. Upload to Supabase Storage
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+                const { error: uploadError } = await supabase.storage
+                    .from('heritage-images')
+                    .upload(`discoveries/${fileName}`, blob);
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('heritage-images')
+                    .getPublicUrl(`discoveries/${fileName}`);
+
+                // 3. Insert into heritage_sites table
+                const { error: insertError } = await supabase
+                    .from('heritage_sites')
+                    .insert([{
+                        name: newMonumentName,
+                        description: "A new discovery awaiting historical validation.",
+                        coordinates: [location.lng, location.lat],
+                        category: 'monument',
+                        image: publicUrl,
+                        status: 'Pending',
+                        region: 'Delhi', // Defaulting for now, could be improved
+                        discoveredOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
+                        visitorCount: 1
+                    }]);
+
+                if (insertError) throw insertError;
+                
                 setVerificationResult('PENDING');
             } else {
                 const site = heritageSites.find(s => s.id === selectedMonument);
@@ -120,8 +164,13 @@ const CameraScreen = ({ onClose }: { onClose: () => void }) => {
                     }
                 }
             }
+        } catch (error: any) {
+            console.error("Verification/Upload error:", error);
+            alert(`Error: ${error.message || "Failed to process discovery"}`);
+        } finally {
             setIsVerifying(false);
-        }, 2000);
+            setIsUploading(false);
+        }
     };
 
     const resetCamera = () => {
@@ -257,6 +306,8 @@ const CameraScreen = ({ onClose }: { onClose: () => void }) => {
                                         <label className="block text-[10px] font-bold text-amber-900/50 uppercase tracking-widest mb-2">Scroll Name</label>
                                         <input 
                                             type="text" 
+                                            value={newMonumentName}
+                                            onChange={(e) => setNewMonumentName(e.target.value)}
                                             placeholder="Enter the name of this relic..."
                                             className="w-full bg-white border-2 border-amber-900/10 rounded-xl px-4 py-3 text-amber-950 font-serif focus:outline-none focus:border-indi-gold transition-colors"
                                         />
@@ -280,7 +331,7 @@ const CameraScreen = ({ onClose }: { onClose: () => void }) => {
                                         ) : (
                                             <Camera size={16} />
                                         )}
-                                        {isVerifying ? 'Verifying Soul...' : 'Invoke Identity'}
+                                        {isVerifying ? (isUploading ? 'Sealing Discovery...' : 'Verifying Soul...') : 'Invoke Identity'}
                                     </button>
                                 </div>
                             </div>
