@@ -2,66 +2,44 @@ export interface HeritageSite {
     id: string;
     name: string;
     description: string;
+    history: string;
+    activities: string[];
     coordinates: [number, number]; // [longitude, latitude]
     category: 'temple' | 'fort' | 'monument' | 'shrine';
     image?: string;
+    isRare?: boolean;
 }
 
 export const heritageSites: HeritageSite[] = [
     {
         id: '1',
-        name: 'Hampi - Virupaksha Temple',
-        description: 'The main shrine dedicated to Lord Virupaksha. The tower casts an inverted shadow in the inner sanctum.',
-        coordinates: [76.4590, 15.3350],
-        category: 'temple',
-        image: '/assets/temple (2).jpg'
+        name: 'Red Fort',
+        description: 'A historic fort in the city of Delhi in India that served as the main residence of the Mughal Emperors.',
+        history: 'Constructed in 1639 by Emperor Shah Jahan when he decided to shift his capital from Agra to Delhi. It represents the pinnacle of Mughal architecture, blending Persian, Timurid, and Indian styles.',
+        activities: ['Sound and Light Show', 'Exploring Meena Bazaar', 'Visiting War Memorial Museum'],
+        coordinates: [77.2410, 28.6562],
+        category: 'fort',
+        image: '/assets/red-fort.jpg',
+        isRare: true
     },
     {
         id: '2',
-        name: 'Stone Chariot',
-        description: 'A shrine built in the form of a temple chariot. Legend says the wheels could once turn.',
-        coordinates: [76.4673, 15.3389],
+        name: 'Qutub Minar',
+        description: 'A 73-metre tall tapering tower of five storeys, built by Qutb-ud-din Aibak.',
+        history: 'Inspired by the Minaret of Jam in Afghanistan, its construction was started in 1192 by Qutb-ud-din Aibak. The tower is built of red sandstone and marble, featuring intricate carvings and verses from the Quran.',
+        activities: ['Climbing the nearby staircases', 'Viewing the Iron Pillar', 'Exploring the Qutub Complex'],
+        coordinates: [77.1855, 28.5244],
         category: 'monument',
-        image: '/assets/temple.jpg'
+        image: '/assets/qutub-minar.jpg'
     },
     {
         id: '3',
-        name: 'Lotus Mahal',
-        description: 'Zenana Enclosure\'s primary palace with lotus-like archways.',
-        coordinates: [76.4682, 15.3326],
-        category: 'shrine',
-        image: '/assets/temple.jpg'
-    },
-    {
-        id: '4',
-        name: 'Golgumbaz',
-        description: 'The tomb of Mohammed Adil Shah, Sultan of Bijapur.',
-        coordinates: [75.7364, 16.8271],
-        category: 'fort',
-        image: '/assets/Golgumbaz.jpg'
-    },
-    {
-        id: '5',
-        name: 'Ajanta Caves',
-        description: 'Buddhist cave monuments which date from the 2nd century BCE.',
-        coordinates: [75.7485, 20.5519],
+        name: 'Humayun\'s Tomb',
+        description: 'The tomb of the Mughal Emperor Humayun in Delhi, India.',
+        history: 'Built in 1570, it was the first garden-tomb on the Indian subcontinent. It was commissioned by Humayun\'s first wife, Bega Begum, and designed by Mirak Mirza Ghiyas and his son, Sayyid Muhammad.',
+        activities: ['Garden Walks', 'Photography', 'Exploring Sunder Nursery nearby'],
+        coordinates: [77.2507, 28.5933],
         category: 'monument',
-        image: '/assets/images.jpg'
-    },
-    {
-        id: '6',
-        name: 'Thanjavur Brihadeeshwara Temple',
-        description: 'A Hindu temple dedicated to Shiva located in South bank of Kaveri river in Thanjavur.',
-        coordinates: [79.1318, 10.7828],
-        category: 'temple',
-        image: '/assets/Thanjavur-Brihadeeshwara-Temple.jpg'
-    },
-    {
-        id: '7',
-        name: 'Akshardham Temple',
-        description: 'A spiritual-cultural campus in Delhi, India.',
-        coordinates: [77.2773, 28.6127],
-        category: 'temple',
-        image: '/assets/Akshardham-Temple-New-Delhi.jpg'
+        image: '/assets/humayun-tomb.jpg'
     }
 ];
