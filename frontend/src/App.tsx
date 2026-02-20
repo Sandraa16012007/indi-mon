@@ -64,7 +64,7 @@ export default function App() {
     switch (screen) {
       case 'PROFILE': return <ProfileScreen />;
       case 'LEADERBOARD': return <LeaderboardScreen />;
-      case 'DEX': return <div onClick={() => setShowInfo(true)} className="h-full"><HeritageDexScreen /></div>;
+      case 'DEX': return <HeritageDexScreen onOpenInfo={() => setShowInfo(true)} />;
       case 'MAP': return <MapScreen onShowCamera={() => setShowCamera(true)} />;
       case 'SETTINGS': return <SettingsScreen />;
       default: return null;
@@ -260,11 +260,13 @@ export default function App() {
             </div>
 
             {/* Info Carousel with heritage border */}
-            <div className="h-20 mb-12 flex items-center justify-center text-center max-w-lg px-4 backdrop-blur-sm rounded-xl"
+            <div className="h-24 mb-12 flex items-center justify-center text-center max-w-lg px-6 backdrop-blur-md rounded-2xl relative overflow-hidden"
               style={{
-                background: 'rgba(30, 10, 0, 0.45)',
-                border: '1px solid rgba(245,158,11,0.25)',
-                boxShadow: '0 0 20px rgba(245,158,11,0.08), inset 0 0 20px rgba(245,158,11,0.04)'
+                background: 'linear-gradient(rgba(30, 10, 0, 0.6), rgba(30, 10, 0, 0.6)), url("/assets/meenakshisunset.webp")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                border: '1px solid rgba(245,158,11,0.3)',
+                boxShadow: '0 0 30px rgba(245,158,11,0.1), inset 0 0 30px rgba(245,158,11,0.1)'
               }}>
               <InfoCarousel />
             </div>
@@ -328,12 +330,12 @@ export default function App() {
         <div
           className="w-full h-full flex relative"
           style={{
-            background: `linear-gradient(rgba(60, 28, 8, 0.82), rgba(60, 28, 8, 0.82)), url("/assets/map.png")`,
+            background: `linear-gradient(rgba(40, 20, 5, 0.65), rgba(40, 20, 5, 0.65)), url("/assets/map.png")`,
             backgroundColor: '#1a0e06',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundBlendMode: 'multiply',
-            filter: 'sepia(0.25) brightness(0.92)',
+            filter: 'sepia(0.1) brightness(0.95)',
           }}
         >
           {/* Warm radial vignette */}

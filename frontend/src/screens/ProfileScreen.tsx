@@ -9,9 +9,9 @@ const ProfileScreen = () => {
 
     const containerVariants: any = {
         hidden: { opacity: 0 },
-        visible: { 
+        visible: {
             opacity: 1,
-            transition: { 
+            transition: {
                 staggerChildren: 0.15,
                 delayChildren: 0.2
             }
@@ -20,8 +20,8 @@ const ProfileScreen = () => {
 
     const sectionVariants: any = {
         hidden: { y: 20, opacity: 0 },
-        visible: { 
-            y: 0, 
+        visible: {
+            y: 0,
             opacity: 1,
             transition: { duration: 0.6, ease: "easeOut" }
         }
@@ -29,8 +29,8 @@ const ProfileScreen = () => {
 
     const statsVariants: any = {
         hidden: { scale: 0.95, opacity: 0 },
-        visible: { 
-            scale: 1, 
+        visible: {
+            scale: 1,
             opacity: 1,
             transition: { duration: 0.5, ease: "easeOut" }
         }
@@ -44,11 +44,11 @@ const ProfileScreen = () => {
             className="w-full h-full bg-[#0b101b] text-slate-100 flex font-sans overflow-hidden"
         >
             {/* Left Column: Stats & Avatar (Fixed width) */}
-            <motion.div 
+            <motion.div
                 variants={sectionVariants}
                 className="w-1/3 min-w-[300px] h-full border-r border-white/5 bg-[#0f172a]/50 p-8 flex flex-col items-center justify-center relative"
             >
-                <motion.div 
+                <motion.div
                     variants={statsVariants}
                     whileHover={{ scale: 1.02 }}
                     className="relative group cursor-pointer mb-6"
@@ -60,7 +60,7 @@ const ProfileScreen = () => {
                         <img src="/assets/profile-pic (1).jpg" alt="Profile" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     </div>
 
-                    <motion.div 
+                    <motion.div
                         initial={{ scale: 0, rotate: -20 }}
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ delay: 0.5, type: "spring", stiffness: 260, damping: 20 }}
@@ -82,7 +82,7 @@ const ProfileScreen = () => {
                         <span className="text-indi-gold">12.4k / 15k</span>
                     </div>
                     <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden border border-white/5 p-[1px]">
-                        <motion.div 
+                        <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: "82%" }}
                             transition={{ duration: 1.5, ease: "circOut", delay: 0.8 }}
@@ -148,7 +148,7 @@ const ProfileScreen = () => {
 };
 
 const StampItem = ({ icon, label, active, index }: { icon: React.ReactNode, label: string, active: boolean, index: number }) => (
-    <motion.div 
+    <motion.div
         variants={{
             hidden: { scale: 0.8, opacity: 0 },
             visible: { scale: 1, opacity: 1, transition: { delay: 0.1 * index } }
@@ -170,18 +170,21 @@ const LogItem = ({ icon, title, subtitle, color, index }: { icon: React.ReactNod
         blue: 'text-sky-500 bg-sky-950/30 border-sky-900/50 group-hover:border-sky-500/50',
     }
     return (
-        <motion.div 
+        <motion.div
             variants={{
                 hidden: { x: 20, opacity: 0 },
                 visible: { x: 0, opacity: 1, transition: { delay: 0.1 * index } }
             }}
             whileHover={{ x: 5 }}
-            className="bg-[#131b2e]/40 backdrop-blur-sm p-5 rounded-xl border border-white/5 flex gap-5 items-center shadow-sm hover:bg-[#1a2339]/60 transition-all cursor-pointer group hover:border-indi-gold/20"
+            className="bg-[#131b2e]/40 backdrop-blur-sm p-5 rounded-xl border border-white/5 flex gap-5 items-center shadow-sm hover:bg-[#1a2339]/60 transition-all cursor-pointer group hover:border-indi-gold/20 relative overflow-hidden"
         >
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none group-hover:opacity-[0.06] transition-opacity">
+                <img src="/assets/temple.jpg" className="w-full h-full object-cover grayscale" />
+            </div>
             <div className={`w-12 h-12 rounded-full border transition-all duration-300 ${colors[color] || colors.amber} flex items-center justify-center shrink-0 group-hover:scale-110 shadow-lg`}>
                 {icon}
             </div>
-            <div>
+            <div className="relative z-10">
                 <h4 className="font-serif text-lg text-slate-200 group-hover:text-indi-gold transition-colors">{title}</h4>
                 <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">{subtitle}</p>
             </div>
