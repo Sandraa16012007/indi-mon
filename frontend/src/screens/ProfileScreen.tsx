@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const ProfileScreen = () => {
     const { user } = useAuth();
-    const explorerName = user?.user_metadata?.explorer_name || 'Explorer';
+    const displayName = user?.user_metadata?.full_name || 'Explorer';
 
     return (
         <motion.div
@@ -28,7 +28,7 @@ const ProfileScreen = () => {
                     </div>
                 </div>
 
-                <h2 className="text-5xl font-serif text-indi-gold tracking-wide drop-shadow-md text-center truncate w-full px-4">{explorerName}</h2>
+                <h2 className="text-5xl font-serif text-indi-gold tracking-wide drop-shadow-md text-center truncate w-full px-4">{displayName}</h2>
                 <p className="text-slate-400 font-serif text-sm tracking-[0.3em] uppercase mt-2 border-b border-indi-gold/30 pb-2">Grand Sage</p>
 
                 <div className="mt-8 w-full max-w-[240px]">
