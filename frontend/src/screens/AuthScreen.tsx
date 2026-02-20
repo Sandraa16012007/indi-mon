@@ -97,7 +97,7 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
             <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
             {/* Left Panel: Branding & Info */}
-            <div className="hidden lg:flex flex-1 flex-col items-center justify-center p-12 relative z-10 border-r border-white/5 bg-gradient-to-br from-black/40 to-transparent">
+            <div className="flex flex-1 flex-col items-center justify-center p-12 relative z-10 border-r border-white/5 bg-gradient-to-br from-black/40 to-transparent">
                 <div className="max-w-xl flex flex-col items-center text-center">
                     {/* Logo Section */}
                     <motion.div
@@ -130,8 +130,8 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
 
             {/* Right Panel: Auth Modal */}
             <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 relative z-10 overflow-y-auto custom-scrollbar">
-                {/* Mobile Heading Only */}
-                <div className="lg:hidden mb-8 flex flex-col items-center">
+                {/* Mobile Heading - Hidden in standard layout */}
+                <div className="hidden mb-8 flex flex-col items-center">
                     <img src="/assets/logo.png" alt="Indi-Mon" className="w-20 h-20 object-contain mb-4" />
                 </div>
 
@@ -329,7 +329,7 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
             </div>
 
             {/* Footer Branding */}
-            <div className="fixed bottom-6 left-1/2 lg:left-3/4 -translate-x-1/2 text-center z-10 opacity-20 pointer-events-none">
+            <div className="fixed bottom-6 left-3/4 -translate-x-1/2 text-center z-10 opacity-20 pointer-events-none">
                 <p className="font-pixel text-[10px] tracking-[0.3em] text-white uppercase">
                     © Indimon Archive Council • Bharat • MMXXIV
                 </p>

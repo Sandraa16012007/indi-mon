@@ -2,19 +2,19 @@ import { Map, Scroll, Award, Settings, Briefcase } from 'lucide-react';
 
 interface SidebarProps {
     activeScreen: string;
-    setScreen: (screen: 'LANDING' | 'AUTH' | 'MAP' | 'DEX' | 'LEADERBOARD' | 'PROFILE') => void;
+    setScreen: (screen: 'LANDING' | 'AUTH' | 'MAP' | 'DEX' | 'LEADERBOARD' | 'PROFILE' | 'SETTINGS') => void;
 }
 
 const Sidebar = ({ activeScreen, setScreen }: SidebarProps) => {
     return (
-        <div className="w-20 lg:w-44 h-full bg-[#161b22] border-r border-[#30363d] flex flex-col items-center py-6 z-20 shrink-0">
+        <div className="w-44 h-full bg-[#161b22] border-r border-[#30363d] flex flex-col items-center py-6 z-20 shrink-0">
             {/* Profile Avatar / Top */}
             <div className="mb-8 flex flex-col items-center cursor-pointer group" onClick={() => setScreen('PROFILE')}>
-                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full border-2 border-indi-gold p-0.5 mb-2 relative">
+                <div className="w-16 h-16 rounded-full border-2 border-indi-gold p-0.5 mb-2 relative">
                     <img src="/assets/profile-pic (1).jpg" className="w-full h-full rounded-full object-cover" />
                     <div className="absolute -bottom-1 -right-1 bg-indi-gold text-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold font-pixel border border-black">42</div>
                 </div>
-                <div className="hidden lg:block text-center">
+                <div className="block text-center">
                     <h3 className="text-indi-gold font-serif text-sm tracking-wide group-hover:text-white transition-colors">Explorer</h3>
                     <p className="text-[9px] text-slate-500 uppercase tracking-widest">Grand Sage</p>
                 </div>
@@ -54,7 +54,7 @@ const Sidebar = ({ activeScreen, setScreen }: SidebarProps) => {
                     icon={<Settings size={20} />}
                     label="Settings"
                     isActive={activeScreen === 'SETTINGS'}
-                    onClick={() => { }}
+                    onClick={() => setScreen('SETTINGS')}
                 />
             </div>
 
@@ -75,7 +75,7 @@ interface NavItemProps {
 const NavItem = ({ icon, label, isActive, onClick }: NavItemProps) => (
     <button
         onClick={onClick}
-        className={`w-full flex lg:justify-start justify-center items-center gap-3 p-3 rounded-lg transition-all duration-200 group relative
+        className={`w-full flex justify-start items-center gap-3 p-3 rounded-lg transition-all duration-200 group relative
       ${isActive
                 ? 'bg-indi-gold/10 text-indi-gold border border-indi-gold/20'
                 : 'text-slate-400 hover:bg-white/5 hover:text-slate-200 border border-transparent'
@@ -88,7 +88,7 @@ const NavItem = ({ icon, label, isActive, onClick }: NavItemProps) => (
             {icon}
         </div>
 
-        <span className={`hidden lg:block font-pixel text-sm uppercase tracking-wider ${isActive ? 'font-bold' : ''}`}>
+        <span className={`block font-pixel text-sm uppercase tracking-wider ${isActive ? 'font-bold' : ''}`}>
             {label}
         </span>
     </button>

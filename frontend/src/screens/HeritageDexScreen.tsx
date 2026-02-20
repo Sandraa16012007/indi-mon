@@ -55,7 +55,7 @@ const HeritageDexScreen = () => {
 
             {/* Right Panel: Content Grid (Scrollable) */}
             <div className="flex-1 bg-[#0b101b] p-8 overflow-y-auto custom-scrollbar">
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-12">
+                <div className="grid grid-cols-2 gap-6 pb-12">
                     <DexCard
                         title="The Stone Chariot"
                         desc="A shrine built in the form of a temple chariot. Legend says the wheels could once turn..."

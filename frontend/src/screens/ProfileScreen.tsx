@@ -48,7 +48,7 @@ const ProfileScreen = () => {
                         <div className="h-[1px] bg-white/10 flex-1"></div>
                     </div>
 
-                    <div className="grid grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-5 gap-6">
                         <StampItem icon={<Leaf size={28} />} label="Forest Bound" active />
                         <StampItem icon={<Castle size={26} />} label="Citadel Key" active />
                         <StampItem icon={<Droplet size={26} />} label="Ganga Blessed" active />
@@ -65,7 +65,7 @@ const ProfileScreen = () => {
                         <div className="h-[1px] bg-white/10 flex-1"></div>
                     </div>
 
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                         <LogItem
                             icon={<Compass size={22} />}
                             title="Discovered Ancient Shrine of Hampi"

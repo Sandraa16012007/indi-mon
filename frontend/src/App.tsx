@@ -8,6 +8,7 @@ import CameraScreen from './screens/CameraScreen';
 import InfoScreen from './screens/InfoScreen';
 import MapScreen from './screens/MapScreen';
 import AuthScreen from './screens/AuthScreen';
+import SettingsScreen from './screens/SettingsScreen';
 import { useAuth } from './hooks/useAuth';
 import { Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -54,7 +55,7 @@ const InfoCarousel = () => {
 };
 
 export default function App() {
-  const [screen, setScreen] = useState<'LANDING' | 'AUTH' | 'MAP' | 'DEX' | 'LEADERBOARD' | 'PROFILE'>('LANDING');
+  const [screen, setScreen] = useState<'LANDING' | 'AUTH' | 'MAP' | 'DEX' | 'LEADERBOARD' | 'PROFILE' | 'SETTINGS'>('LANDING');
   const [showCamera, setShowCamera] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const { user, loading } = useAuth();
@@ -65,6 +66,7 @@ export default function App() {
       case 'LEADERBOARD': return <LeaderboardScreen />;
       case 'DEX': return <div onClick={() => setShowInfo(true)} className="h-full"><HeritageDexScreen /></div>;
       case 'MAP': return <MapScreen onShowCamera={() => setShowCamera(true)} />;
+      case 'SETTINGS': return <SettingsScreen />;
       default: return null;
     }
   };
