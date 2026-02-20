@@ -77,8 +77,9 @@ export default function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
                 const data = await api.signup({ 
                     email, 
                     password, 
-                    full_name: displayName,
-                    // phone and organization can be added later or defaulted
+                    full_name: fullName,
+                    phone: phone,
+                    organization: organisation
                 });
                 if (data.error) throw new Error(data.error.message);
 

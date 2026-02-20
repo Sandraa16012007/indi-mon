@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, Shield, Compass, Edit2, Trash2, X, Check } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
@@ -6,24 +6,34 @@ import { api } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 
 const SettingsScreen = () => {
-    const { user } = useAuth();
-    const displayName = user?.user_metadata?.full_name || 'Explorer';
+    const { profile, refreshProfile } = useAuth();
+    const displayName = profile?.full_name || 'Explorer';
+    
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    
     const [isEditing, setIsEditing] = useState(false);
-    const [fullName, setFullName] = useState(explorerName);
-    const [phone, setPhone] = useState(user?.user_metadata?.phone || '');
-    const [organization, setOrganization] = useState(user?.user_metadata?.organization || '');
+    const [fullName, setFullName] = useState(displayName);
+    const [phone, setPhone] = useState(profile?.phone || '');
+    const [organization, setOrganization] = useState(profile?.organization || '');
     const [isUpdating, setIsUpdating] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Sync state when profile is fetched
+    useEffect(() => {
+        if (profile) {
+            setFullName(profile.full_name || '');
+            setPhone(profile.phone || '');
+            setOrganization(profile.organization || '');
+        }
+    }, [profile]);
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
         // Simulate a ritualistic transition delay
         await new Promise(resolve => setTimeout(resolve, 2000));
         await supabase.auth.signOut();
-        // Redirect logic is handled in App.tsx via useAuth state change
     };
 
     const handleUpdate = async () => {
@@ -31,7 +41,7 @@ const SettingsScreen = () => {
         try {
             const data = await api.updateUser({ full_name: fullName, phone, organization });
             if (data.error) throw new Error(data.error.message);
-            // In a real app, we might want to refresh the auth state or user metadata here
+            await refreshProfile();
             setIsEditing(false);
         } catch (error) {
             console.error('Update failed:', error);
@@ -53,10 +63,20 @@ const SettingsScreen = () => {
         }
     };
 
+    const containerVariants: any = {
+        hidden: { opacity: 0, y: 10 },
+        visible: { 
+            opacity: 1, 
+            y: 0,
+            transition: { duration: 0.5, ease: "easeOut" }
+        }
+    };
+
     return (
         <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
             className="w-full h-full bg-[#0b101b] text-slate-100 flex flex-col font-sans overflow-hidden relative"
         >
             {/* Background Decorative Elements */}
@@ -66,9 +86,13 @@ const SettingsScreen = () => {
             {/* Header */}
             <div className="h-24 border-b border-white/5 bg-[#0f172a]/80 backdrop-blur-md flex items-center px-12 shrink-0 z-10">
                 <div className="flex items-center gap-6">
-                    <div className="p-3 bg-indi-gold/10 rounded-xl text-indi-gold border border-indi-gold/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                    <motion.div 
+                        initial={{ rotate: -10, opacity: 0 }}
+                        animate={{ rotate: 0, opacity: 1 }}
+                        className="p-3 bg-indi-gold/10 rounded-xl text-indi-gold border border-indi-gold/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                    >
                         <Shield size={28} />
-                    </div>
+                    </motion.div>
                     <div>
                         <h2 className="text-3xl font-serif text-indi-gold tracking-widest uppercase">The inner sanctum</h2>
                         <p className="text-[10px] text-slate-500 uppercase tracking-[0.4em] mt-1">Registry of the Chronicler</p>
@@ -87,50 +111,66 @@ const SettingsScreen = () => {
                         <div className="h-[1px] bg-indi-gold/20 flex-1"></div>
                     </div>
 
-                    <div className="max-w-4xl mx-auto bg-[#131b2e]/60 border border-white/5 rounded-2xl p-10 relative overflow-hidden group hover:border-indi-gold/20 transition-colors shadow-2xl">
+                    <motion.div 
+                        layout
+                        className="max-w-4xl mx-auto bg-[#131b2e]/60 border border-white/5 rounded-2xl p-10 relative overflow-hidden group hover:border-indi-gold/20 transition-colors shadow-2xl"
+                    >
                         {/* Corner Accents */}
                         <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-indi-gold/30"></div>
                         <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-indi-gold/30"></div>
 
                         <div className="flex items-start gap-10">
-                            <div className="relative">
+                            <motion.div layout className="relative">
                                 <div className="w-32 h-32 rounded-full border-2 border-indi-gold p-1 relative z-10 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
                                     <img src="/assets/profile-pic (1).jpg" className="w-full h-full rounded-full object-cover" />
                                 </div>
                                 <div className="absolute -bottom-2 -right-2 bg-indi-gold text-black text-xl font-bold font-pixel w-10 h-10 rounded-full flex items-center justify-center border-2 border-black z-20">42</div>
-                            </div>
+                            </motion.div>
  
                             <div className="flex-1">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="flex-1">
-                                        {isEditing ? (
-                                            <div className="space-y-4 max-w-md">
-                                                <input 
-                                                    value={fullName} 
-                                                    onChange={e => setFullName(e.target.value)}
-                                                    className="w-full bg-black/40 border border-indi-gold/30 rounded-lg px-4 py-2 text-2xl font-serif text-slate-100 focus:outline-none focus:border-indi-gold"
-                                                    placeholder="Explorer Name"
-                                                />
-                                                <input 
-                                                    value={phone} 
-                                                    onChange={e => setPhone(e.target.value)}
-                                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-slate-300 focus:outline-none focus:border-indi-gold/40"
-                                                    placeholder="Phone"
-                                                />
-                                                <input 
-                                                    value={organization} 
-                                                    onChange={e => setOrganization(e.target.value)}
-                                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-slate-300 focus:outline-none focus:border-indi-gold/40"
-                                                    placeholder="Organization"
-                                                />
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <h4 className="text-4xl font-serif text-slate-100 tracking-wide mb-1">{fullName}</h4>
-                                                <p className="text-indi-gold font-serif text-sm tracking-[0.2em] uppercase opacity-80">Grand Sage</p>
-                                                {organization && <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest">{organization}</p>}
-                                            </>
-                                        )}
+                                        <AnimatePresence mode="wait">
+                                            {isEditing ? (
+                                                <motion.div 
+                                                    key="editing"
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: 10 }}
+                                                    className="space-y-4 max-w-md"
+                                                >
+                                                    <input 
+                                                        value={fullName} 
+                                                        onChange={e => setFullName(e.target.value)}
+                                                        className="w-full bg-black/40 border border-indi-gold/30 rounded-lg px-4 py-2 text-2xl font-serif text-slate-100 focus:outline-none focus:border-indi-gold transition-colors"
+                                                        placeholder="Explorer Name"
+                                                    />
+                                                    <input 
+                                                        value={phone} 
+                                                        onChange={e => setPhone(e.target.value)}
+                                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-slate-300 focus:outline-none focus:border-indi-gold/40 transition-colors"
+                                                        placeholder="Phone"
+                                                    />
+                                                    <input 
+                                                        value={organization} 
+                                                        onChange={e => setOrganization(e.target.value)}
+                                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-sm text-slate-300 focus:outline-none focus:border-indi-gold/40 transition-colors"
+                                                        placeholder="Organization"
+                                                    />
+                                                </motion.div>
+                                            ) : (
+                                                <motion.div
+                                                    key="viewing"
+                                                    initial={{ opacity: 0, x: 10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: -10 }}
+                                                >
+                                                    <h4 className="text-4xl font-serif text-slate-100 tracking-wide mb-1">{fullName}</h4>
+                                                    <p className="text-indi-gold font-serif text-sm tracking-[0.2em] uppercase opacity-80">Grand Sage</p>
+                                                    {organization && <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest">{organization}</p>}
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                     <div className="flex flex-col items-end gap-4">
                                         <div className="text-right">
@@ -138,20 +178,48 @@ const SettingsScreen = () => {
                                             <span className="text-2xl font-pixel text-indi-gold">68,400 XP</span>
                                         </div>
                                         <div className="flex gap-2">
-                                            {isEditing ? (
-                                                <>
-                                                    <button onClick={handleUpdate} disabled={isUpdating} className="p-2 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg hover:bg-green-500/20 transition-colors">
-                                                        <Check size={20} />
-                                                    </button>
-                                                    <button onClick={() => setIsEditing(false)} className="p-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors">
-                                                        <X size={20} />
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <button onClick={() => setIsEditing(true)} className="p-2 bg-indi-gold/10 text-indi-gold border border-indi-gold/20 rounded-lg hover:bg-indi-gold/20 transition-colors">
-                                                    <Edit2 size={20} />
-                                                </button>
-                                            )}
+                                            <AnimatePresence mode="wait">
+                                                {isEditing ? (
+                                                    <motion.div 
+                                                        key="edit-actions"
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.8 }}
+                                                        className="flex gap-2"
+                                                    >
+                                                        <motion.button 
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            onClick={handleUpdate} 
+                                                            disabled={isUpdating} 
+                                                            className="p-2 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg hover:bg-green-500/20 transition-colors"
+                                                        >
+                                                            {isUpdating ? <div className="w-5 h-5 border-2 border-green-500/30 border-t-green-500 rounded-full animate-spin" /> : <Check size={20} />}
+                                                        </motion.button>
+                                                        <motion.button 
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            onClick={() => setIsEditing(false)} 
+                                                            className="p-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors"
+                                                        >
+                                                            <X size={20} />
+                                                        </motion.button>
+                                                    </motion.div>
+                                                ) : (
+                                                    <motion.button 
+                                                        key="edit-trigger"
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.8 }}
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => setIsEditing(true)} 
+                                                        className="p-2 bg-indi-gold/10 text-indi-gold border border-indi-gold/20 rounded-lg hover:bg-indi-gold/20 transition-colors"
+                                                    >
+                                                        <Edit2 size={20} />
+                                                    </motion.button>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
                                 </div>
@@ -169,14 +237,14 @@ const SettingsScreen = () => {
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: "82%" }}
-                                            transition={{ duration: 1.5, ease: "easeOut" }}
+                                            transition={{ duration: 1.5, ease: "circOut" }}
                                             className="h-full bg-gradient-to-r from-amber-700 to-indi-gold shadow-[0_0_15px_rgba(245,158,11,0.5)]"
                                         ></motion.div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </section>
 
                 {/* Logout & Delete Section */}
@@ -185,27 +253,31 @@ const SettingsScreen = () => {
                         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent mb-4"></div>
 
                         <div className="flex gap-6">
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.05, border: "rgba(245,158,11,0.6) 1px solid" }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => setShowConfirm(true)}
-                                className="group relative px-12 py-5 bg-transparent border border-indi-gold/30 rounded-xl overflow-hidden transition-all hover:border-indi-gold/60 active:scale-95 shadow-lg"
+                                className="group relative px-12 py-5 bg-transparent border border-indi-gold/30 rounded-xl overflow-hidden transition-all shadow-lg"
                             >
                                 <div className="absolute inset-0 bg-indi-gold/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                                 <div className="relative flex items-center gap-4">
                                     <LogOut size={20} className="text-indi-gold group-hover:rotate-12 transition-transform" />
                                     <span className="text-xl font-serif text-indi-gold uppercase tracking-[0.3em] font-light">Log Out</span>
                                 </div>
-                            </button>
+                            </motion.button>
 
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.05, border: "rgba(239, 68, 68, 0.6) 1px solid" }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => setShowDeleteConfirm(true)}
-                                className="group relative px-12 py-5 bg-transparent border border-red-500/30 rounded-xl overflow-hidden transition-all hover:border-red-500/60 active:scale-95 shadow-lg"
+                                className="group relative px-12 py-5 bg-transparent border border-red-500/30 rounded-xl overflow-hidden transition-all shadow-lg"
                             >
                                 <div className="absolute inset-0 bg-red-500/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                                 <div className="relative flex items-center gap-4">
                                     <Trash2 size={20} className="text-red-500 group-hover:animate-pulse transition-transform" />
                                     <span className="text-xl font-serif text-red-500 uppercase tracking-[0.3em] font-light">Erase Presence</span>
                                 </div>
-                            </button>
+                            </motion.button>
                         </div>
 
                         <p className="text-[10px] text-slate-600 uppercase tracking-[0.3em]">Seal your ledger and exit the gateway</p>
