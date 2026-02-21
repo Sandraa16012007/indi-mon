@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5174",
+    origin: "http://localhost:5174" || "https://indi-mon-frontend.onrender.com/" ,
     credentials: true,
   }),
 );
