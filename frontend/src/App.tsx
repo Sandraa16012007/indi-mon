@@ -77,30 +77,31 @@ export default function App() {
       }
 
       if (data) {
-        const mappedData: HeritageSite[] = data.map((item: any) => {
-          const specialNames = ["Stepwell", "Watchtower", "Lotus Mahal"];
-          const isSpecial = specialNames.some(name => item.title?.includes(name));
+        const mappedData: HeritageSite[] = data
+          .map((item: any) => {
+            const specialNames = ["Stepwell", "Watchtower", "Lotus Mahal"];
+            const isSpecial = specialNames.some(name => item.title?.includes(name));
 
-          let frontendStatus: HeritageSite['status'] = item.verification_status.charAt(0).toUpperCase() + item.verification_status.slice(1) as any;
+            let frontendStatus: HeritageSite['status'] = item.verification_status.charAt(0).toUpperCase() + item.verification_status.slice(1) as any;
 
-          if (isSpecial && item.verification_status === 'verified') {
-            frontendStatus = 'Undiscovered';
-          }
+            if (isSpecial && item.verification_status === 'verified') {
+              frontendStatus = 'Undiscovered';
+            }
 
-          return {
-            ...item,
-            id: String(item.id),
-            name: item.title,
-            image: item.image_url,
-            status: frontendStatus,
-            coordinates: item.coordinates || [0, 0],
-            discoveredOn: item.submission_date ? new Date(item.submission_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : undefined,
-            visitorCount: item.visitor_count || 1,
-            category: item.category || 'monument',
-            region: item.region || 'Delhi',
-            description: item.description || item.history || ""
-          };
-        });
+            return {
+              ...item,
+              id: String(item.id),
+              name: item.title,
+              image: item.image_url,
+              status: frontendStatus,
+              coordinates: item.coordinates || [0, 0],
+              discoveredOn: item.submission_date ? new Date(item.submission_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : undefined,
+              visitorCount: item.visitor_count || 1,
+              category: item.category || 'monument',
+              region: item.region || 'Delhi',
+              description: item.description || item.history || ""
+            };
+          });
         setSites(mappedData);
       }
     };

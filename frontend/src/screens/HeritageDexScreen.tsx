@@ -7,7 +7,14 @@ const HeritageDexScreen = ({ sites, onOpenInfo }: { sites: HeritageSite[], onOpe
     const [activeFilter, setActiveFilter] = useState<'ALL' | 'DELHI' | 'KERALA' | 'RAJASTHAN' | 'HAMPI' | 'UNDISCOVERED'>('ALL');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const allSites = sites;
+    const allSites = useMemo(() => {
+        const allowedRegions = ["Delhi", "Hampi", "Kerala", "Rajasthan"];
+        const excludedNames = ["Mehrangarh Fort", "Chand Baori", "Bekal Fort"];
+        return sites.filter(s =>
+            allowedRegions.includes(s.region) &&
+            !excludedNames.some(name => s.name.includes(name))
+        );
+    }, [sites]);
 
     const filteredSites = useMemo(() => {
         return allSites.filter(site => {
@@ -69,14 +76,14 @@ const HeritageDexScreen = ({ sites, onOpenInfo }: { sites: HeritageSite[], onOpe
         >
             {/* Left Panel: Filters (Fixed width) */}
             <div className="w-[320px] h-full border-r border-white/10 bg-black/60 backdrop-blur-md flex flex-col z-10 shrink-0 shadow-xl relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20 pointer-events-none transition-opacity duration-1000">
+                <div className="absolute inset-0 opacity-30 pointer-events-none transition-opacity duration-1000">
                     <AnimatePresence mode="wait">
                         <motion.img
                             key={activeFilter}
                             initial={{ opacity: 0, scale: 1.1 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ duration: 1.2, ease: "easeOut" }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
                             src={backgroundMap[activeFilter]}
                             className="w-full h-full object-cover"
                         />

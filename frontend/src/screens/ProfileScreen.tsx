@@ -14,7 +14,15 @@ const ProfileScreen = ({ sites, onOpenInfo }: ProfileProps) => {
     const displayName = profile?.full_name || 'Explorer';
     const [expandedStates, setExpandedStates] = useState<Record<string, boolean>>({});
 
-    const verifiedSites = useMemo(() => sites.filter(s => s.status === 'Verified'), [sites]);
+    const verifiedSites = useMemo(() => {
+        const allowedRegions = ["Delhi", "Hampi", "Kerala", "Rajasthan"];
+        const excludedNames = ["Mehrangarh Fort", "Chand Baori", "Bekal Fort"];
+        return sites.filter(s =>
+            s.status === 'Verified' &&
+            allowedRegions.includes(s.region) &&
+            !excludedNames.some(name => s.name.includes(name))
+        );
+    }, [sites]);
 
     const stats = useMemo(() => {
         const states = new Set(verifiedSites.map(s => s.region));
