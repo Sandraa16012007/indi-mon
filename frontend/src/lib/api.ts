@@ -1,6 +1,6 @@
 import { supabase } from "./supabaseClient";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://indi-mon-backend.onrender.com";
 
 export const api = {
   async signup(userData: any) {
