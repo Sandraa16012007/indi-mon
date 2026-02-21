@@ -51,6 +51,15 @@ const HeritageDexScreen = ({ sites, onOpenInfo }: { sites: HeritageSite[], onOpe
         };
     }, [sites]);
 
+    const backgroundMap: Record<string, string> = {
+        'ALL': '/assets/indian-religious-monuments.jpg',
+        'DELHI': '/assets/dehli region.jpg',
+        'KERALA': '/assets/kerala region.webp',
+        'RAJASTHAN': '/assets/rajasthan region.jpeg',
+        'HAMPI': '/assets/indian-religious-monuments.jpg',
+        'UNDISCOVERED': '/assets/indian-religious-monuments.jpg',
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -59,8 +68,18 @@ const HeritageDexScreen = ({ sites, onOpenInfo }: { sites: HeritageSite[], onOpe
         >
             {/* Left Panel: Filters (Fixed width) */}
             <div className="w-[320px] h-full border-r border-white/10 bg-black/60 backdrop-blur-md flex flex-col z-10 shrink-0 shadow-xl relative overflow-hidden">
-                <div className="absolute inset-0 opacity-5 pointer-events-none">
-                    <img src="/assets/indian-religious-monuments.jpg" className="w-full h-full object-cover grayscale" />
+                <div className="absolute inset-0 opacity-20 pointer-events-none transition-opacity duration-1000">
+                    <AnimatePresence mode="wait">
+                        <motion.img
+                            key={activeFilter}
+                            initial={{ opacity: 0, scale: 1.1 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 1.2, ease: "easeOut" }}
+                            src={backgroundMap[activeFilter]}
+                            className="w-full h-full object-cover"
+                        />
+                    </AnimatePresence>
                 </div>
                 <div className="p-6 border-b border-white/5">
                     <h2 className="font-serif text-2xl tracking-wide text-indi-gold mb-1">Grantha</h2>

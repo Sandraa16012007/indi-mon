@@ -6,9 +6,10 @@ import { useMemo, useState } from 'react';
 
 interface ProfileProps {
     sites: HeritageSite[];
+    onOpenInfo: (site: HeritageSite) => void;
 }
 
-const ProfileScreen = ({ sites }: ProfileProps) => {
+const ProfileScreen = ({ sites, onOpenInfo }: ProfileProps) => {
     const { profile } = useAuth();
     const displayName = profile?.full_name || 'Explorer';
     const [expandedStates, setExpandedStates] = useState<Record<string, boolean>>({});
@@ -163,49 +164,83 @@ const ProfileScreen = ({ sites }: ProfileProps) => {
                                 "The first step has not yet been logged in the archive."
                             </div>
                         ) : (
-                            Object.entries(journeyByState).map(([state, sites]) => (
-                                <section key={state} className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
-                                    <button
-                                        onClick={() => toggleState(state)}
-                                        className="w-full flex items-center gap-6 p-8 hover:bg-white/[0.03] transition-all group"
-                                    >
-                                        <div className="p-3 bg-indi-gold/10 rounded-xl text-indi-gold">
-                                            {expandedStates[state] ? <ChevronDown size={24} /> : <ChevronRight size={24} />}
-                                        </div>
-                                        <div className="flex-1 text-left">
-                                            <h3 className="font-serif text-3xl text-indi-gold italic">{state} Sector</h3>
-                                            <p className="text-[10px] font-pixel text-slate-500 uppercase tracking-widest mt-1">
-                                                {sites.length} Records Verified in this Territory
-                                            </p>
-                                        </div>
-                                        <div className="hidden group-hover:block font-pixel text-[10px] text-indi-gold tracking-widest">
-                                            {expandedStates[state] ? 'CLOSE RECORD' : 'OPEN RECORD'}
-                                        </div>
-                                    </button>
+                            Object.entries(journeyByState).map(([state, sites]) => {
+                                const regionBackgrounds: Record<string, string> = {
+                                    'Delhi': '/assets/dehli region.jpg',
+                                    'Kerala': '/assets/kerala region.webp',
+                                    'Rajasthan': '/assets/rajasthan region.jpeg',
+                                    'Hampi': '/assets/indian-religious-monuments.jpg'
+                                };
+                                const bgImage = regionBackgrounds[state] || '/assets/map.png';
 
-                                    <AnimatePresence>
-                                        {expandedStates[state] && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                                                className="overflow-hidden"
-                                            >
-                                                <div className="p-8 pt-0 grid grid-cols-1 gap-4">
-                                                    {sites.map((site, siteIndex) => (
-                                                        <JourneyLogItem
-                                                            key={site.id}
-                                                            site={site}
-                                                            index={siteIndex}
-                                                        />
-                                                    ))}
+                                return (
+                                    <section key={state} className="bg-[#1a110a] border border-indi-gold/20 rounded-2xl overflow-hidden relative group/sector shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                                        <button
+                                            onClick={() => toggleState(state)}
+                                            className="w-full flex items-center gap-6 p-8 transition-all relative overflow-hidden text-left"
+                                        >
+                                            {/* Background Image Layer */}
+                                            <div
+                                                className="absolute inset-0 z-0 opacity-90 group-hover/sector:opacity-60 transition-opacity duration-1000"
+                                                style={{
+                                                    backgroundImage: `url("${bgImage}")`,
+                                                    backgroundSize: 'cover',
+                                                    backgroundPosition: 'center',
+                                                    filter: 'sepia(0.4) brightness(0.7) contrast(1.1)'
+                                                }}
+                                            />
+                                            {/* Ornate Inset Shadow and Gradient Overlay */}
+                                            <div className="absolute inset-0 z-10 bg-gradient-to-r from-black via-black/40 to-transparent shadow-[inset_0_0_40px_rgba(0,0,0,0.8)]"></div>
+
+                                            {/* Decorative Corner (Top Right) */}
+                                            <div className="absolute top-0 right-0 p-2 opacity-20 group-hover/sector:opacity-40 transition-opacity z-20">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indi-gold">
+                                                    <path d="M22 2 L14 2 M22 2 L22 10" stroke="currentColor" strokeWidth="1" />
+                                                </svg>
+                                            </div>
+
+                                            <div className="relative z-20 p-3 bg-indi-gold/10 rounded-xl text-indi-gold backdrop-blur-md border border-indi-gold/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                                                {expandedStates[state] ? <ChevronDown size={24} /> : <ChevronRight size={24} />}
+                                            </div>
+                                            <div className="relative z-20 flex-1">
+                                                <div className="flex items-center gap-3 mb-1">
+                                                    <span className="text-indi-gold/60 text-xs">✦</span>
+                                                    <h3 className="font-serif text-3xl text-indi-gold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">{state} Sector</h3>
                                                 </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </section>
-                            ))
+                                                <p className="text-[10px] font-pixel text-slate-300 uppercase tracking-widest mt-1 opacity-80">
+                                                    {sites.length} Records Verified in this Territory
+                                                </p>
+                                            </div>
+                                            <div className="relative z-20 hidden group-hover/sector:block font-pixel text-[10px] text-indi-gold tracking-widest bg-black/60 px-4 py-2 rounded-lg backdrop-blur-xl border border-indi-gold/40 shadow-2xl transition-all hover:bg-indi-gold hover:text-black">
+                                                {expandedStates[state] ? 'CLOSE RECORD' : 'OPEN RECORD'}
+                                            </div>
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {expandedStates[state] && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="p-8 pt-0 grid grid-cols-1 gap-4">
+                                                        {sites.map((site, siteIndex) => (
+                                                            <JourneyLogItem
+                                                                key={site.id}
+                                                                site={site}
+                                                                index={siteIndex}
+                                                                onClick={() => onOpenInfo(site)}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </section>
+                                );
+                            })
                         )}
                     </div>
                 </motion.div>
@@ -224,13 +259,14 @@ const StatBlock = ({ label, value, icon }: { label: string, value: string | numb
     </div>
 );
 
-const JourneyLogItem = ({ site, index }: { site: HeritageSite, index: number }) => (
+const JourneyLogItem = ({ site, index, onClick }: { site: HeritageSite, index: number, onClick: () => void }) => (
     <motion.div
         variants={{
             hidden: { x: 20, opacity: 0 },
             visible: { x: 0, opacity: 1, transition: { delay: index * 0.05 } }
         }}
         whileHover={{ x: 8, backgroundColor: 'rgba(255,191,0,0.03)' }}
+        onClick={onClick}
         className="flex items-center gap-8 p-6 bg-white/[0.01] border border-white/5 rounded-2xl transition-all group cursor-pointer"
     >
         <div className="w-20 h-20 rounded-xl overflow-hidden transition-all duration-700 bg-slate-900 shrink-0">
