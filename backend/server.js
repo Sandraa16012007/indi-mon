@@ -7,11 +7,23 @@ import supabase from "./config/supabase.js";
 dotenv.config();
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:5174",
+  "https://indi-mon-frontend.onrender.com"
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5174" || "https://indi-mon-frontend.onrender.com/" ,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("CORS not allowed"), false);
+      }
+    },
     credentials: true,
-  }),
+  })
 );
 
 app.use(express.json());
