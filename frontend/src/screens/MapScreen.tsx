@@ -17,6 +17,7 @@ const MapScreen = ({ sites, onShowCamera }: MapScreenProps) => {
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
     const [nearbyPOIs, setNearbyPOIs] = useState<POI[]>([]);
     const [poiMarkers, setPoiMarkers] = useState<L.LayerGroup | null>(null);
+    const [siteMarkers, setSiteMarkers] = useState<L.LayerGroup | null>(null);
 
 
     useEffect(() => {
@@ -34,6 +35,7 @@ const MapScreen = ({ sites, onShowCamera }: MapScreenProps) => {
         }
     }, []);
 
+    // Initialize Map
     useEffect(() => {
         if (!mapContainer.current || map.current || !userLocation) return;
 
@@ -51,6 +53,10 @@ const MapScreen = ({ sites, onShowCamera }: MapScreenProps) => {
         // Layer group for POI markers
         const poiGroup = L.layerGroup().addTo(map.current);
         setPoiMarkers(poiGroup);
+
+        // Layer group for Site markers
+        const siteGroup = L.layerGroup().addTo(map.current);
+        setSiteMarkers(siteGroup);
 
         const userIcon = L.divIcon({
             className: 'user-location-marker',
@@ -70,8 +76,20 @@ const MapScreen = ({ sites, onShowCamera }: MapScreenProps) => {
         });
 
         L.marker(userLocation, { icon: userIcon }).addTo(map.current);
-
         setMapLoaded(true);
+
+        return () => {
+            map.current?.remove();
+            map.current = null;
+        };
+    }, [userLocation]);
+
+    // Handle site markers separately so they update when 'sites' prop changes
+    useEffect(() => {
+        if (!map.current || !siteMarkers) return;
+
+        // Clear existing site markers
+        siteMarkers.clearLayers();
 
         // Add markers for heritage sites
         const uniqueSites = sites.filter((site, index, self) =>
@@ -101,21 +119,16 @@ const MapScreen = ({ sites, onShowCamera }: MapScreenProps) => {
                 iconAnchor: [20, 20]
             });
 
-            const marker = L.marker(latlng, { icon }).addTo(map.current!);
+            const marker = L.marker(latlng, { icon }).addTo(siteMarkers);
 
             marker.on('click', () => {
                 setSelectedSite(site);
-                setNearbyPOIs([]); // Clear POIs when switching sites
-                poiGroup.clearLayers();
+                setNearbyPOIs([]);
+                poiMarkers?.clearLayers();
                 map.current?.flyTo(latlng, 16, { duration: 1.5 });
             });
         });
-
-        return () => {
-            map.current?.remove();
-            map.current = null;
-        };
-    }, [userLocation]);
+    }, [sites, mapLoaded, siteMarkers]);
 
     // Handle showing POIs on map
     const handleDiscoverNearby = () => {
