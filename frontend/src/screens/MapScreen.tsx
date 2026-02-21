@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Camera, Home, MapPin, X, Users, Search, ShoppingBag, Hotel, Utensils, Tent, Zap } from 'lucide-react';
+import { Camera, Home, MapPin, X, Users, Search, ShoppingBag, Hotel, Utensils, Tent, Zap, Clock } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { HeritageSite, POI } from '../data/heritageSites';
@@ -244,12 +244,20 @@ const MapScreen = ({ sites, onShowCamera }: MapScreenProps) => {
                                     <div className="flex justify-between items-start mb-1">
                                         <h3 className="font-serif text-2xl leading-tight text-amber-950 truncate">{selectedSite.name}</h3>
                                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ml-2 shrink-0 ${selectedSite.status === 'Verified' ? 'bg-green-600 text-white' :
-                                            selectedSite.status === 'Pending' ? 'bg-amber-500 text-white' :
+                                            selectedSite.status === 'Pending' ? 'bg-blue-600 text-white' :
                                                 'bg-slate-500 text-white'
                                             }`}>
-                                            {selectedSite.status.toUpperCase()}
+                                            {selectedSite.status === 'Pending' ? 'NEW DISCOVERY' : selectedSite.status.toUpperCase()}
                                         </span>
                                     </div>
+
+                                    {/* Date of Discovery/Submission */}
+                                    {(selectedSite.discoveredOn || selectedSite.submissionDate) && (
+                                        <div className="flex items-center gap-1 text-[8px] font-pixel text-slate-500 uppercase tracking-widest mb-1">
+                                            <Clock size={10} />
+                                            <span>{selectedSite.status === 'Pending' ? 'Filed on' : 'Discovered'} {selectedSite.discoveredOn || selectedSite.submissionDate}</span>
+                                        </div>
+                                    )}
 
                                     {/* Coordinates, Region & Visitors */}
                                     <div className="flex items-center justify-between text-[10px] text-amber-900/60 font-pixel mb-3">

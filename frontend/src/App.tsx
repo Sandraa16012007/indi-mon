@@ -96,6 +96,7 @@ export default function App() {
               status: frontendStatus,
               coordinates: item.coordinates || [0, 0],
               discoveredOn: item.submission_date ? new Date(item.submission_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : undefined,
+              submissionDate: item.submission_date ? new Date(item.submission_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : undefined,
               visitorCount: item.visitor_count || 1,
               category: item.category || 'monument',
               region: item.region || 'Delhi',

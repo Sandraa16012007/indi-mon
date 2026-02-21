@@ -25,7 +25,7 @@ const HeritageDexScreen = ({ sites, onOpenInfo }: { sites: HeritageSite[], onOpe
             }
 
             if (activeFilter === 'ALL') {
-                return site.status === 'Verified' && matchesSearch;
+                return (site.status === 'Verified' || site.status === 'Pending') && matchesSearch;
             }
 
             const regionFilterMap: Record<string, string> = {
@@ -35,12 +35,12 @@ const HeritageDexScreen = ({ sites, onOpenInfo }: { sites: HeritageSite[], onOpe
                 'HAMPI': 'Hampi'
             };
 
-            return site.region === regionFilterMap[activeFilter] && site.status === 'Verified' && matchesSearch;
+            return site.region === regionFilterMap[activeFilter] && (site.status === 'Verified' || site.status === 'Pending') && matchesSearch;
         });
     }, [activeFilter, searchQuery, allSites]);
 
     const undiscoveredSites = useMemo(() => {
-        if (activeFilter === 'UNDISCOVERED') return []; // Handled by filteredSites
+        if (activeFilter === 'UNDISCOVERED') return [];
         return allSites.filter(site =>
             site.status === 'Undiscovered' &&
             site.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -154,12 +154,39 @@ const HeritageDexScreen = ({ sites, onOpenInfo }: { sites: HeritageSite[], onOpe
                             <AnimatePresence>
                                 {[...filteredSites].sort((a, b) => {
                                     const months: Record<string, number> = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
-                                    const parseDate = (d?: string) => {
-                                        if (!d) return 0;
-                                        const [day, month] = d.split(' ');
-                                        return new Date(2025, months[month] || 0, parseInt(day)).getTime();
+
+                                    const parseDate = (site: any) => {
+                                        const dateStr = site.submissionDate || site.discoveredOn || '';
+                                        if (!dateStr) return 0;
+
+                                        // Handle "Yesterday"
+                                        if (dateStr.toLowerCase() === 'yesterday') {
+                                            const d = new Date();
+                                            d.setDate(d.getDate() - 1);
+                                            return d.getTime();
+                                        }
+
+                                        // Handle "X days ago"
+                                        const daysAgoMatch = dateStr.match(/(\d+)\s+days?\s+ago/i);
+                                        if (daysAgoMatch) {
+                                            const d = new Date();
+                                            d.setDate(d.getDate() - parseInt(daysAgoMatch[1]));
+                                            return d.getTime();
+                                        }
+
+                                        // Handle "DD MMM"
+                                        const parts = dateStr.split(' ');
+                                        if (parts.length >= 2) {
+                                            const day = parseInt(parts[0]);
+                                            const month = months[parts[1]] ?? 0;
+                                            // Assume 2025 for these specific formats to keep consistency with the mockup
+                                            return new Date(2025, month, day).getTime();
+                                        }
+
+                                        return 0;
                                     };
-                                    return parseDate(b.discoveredOn) - parseDate(a.discoveredOn);
+
+                                    return parseDate(b) - parseDate(a);
                                 }).map(site => (
                                     <DexCard key={site.id} site={site} onClick={() => onOpenInfo(site)} />
                                 ))}
@@ -264,7 +291,7 @@ const DexCard = ({ site, isUndiscovered, onClick }: { site: HeritageSite, isUndi
                             <>
                                 <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                                     <Clock size={12} className="opacity-70" />
-                                    {site.discoveredOn}
+                                    {site.discoveredOn || site.submissionDate}
                                 </span>
 
                                 {site.status === 'Verified' && (
@@ -277,7 +304,7 @@ const DexCard = ({ site, isUndiscovered, onClick }: { site: HeritageSite, isUndi
                                 {site.status === 'Pending' && (
                                     <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-blue-600">
                                         <AlertCircle size={12} className="opacity-70" />
-                                        Pending
+                                        New Discovery
                                     </span>
                                 )}
 
